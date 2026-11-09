@@ -1,0 +1,20 @@
+<!-- =====================================================================================
+  bottom.html  (TEMPLATE, filled by build.py)
+  The summary page, always the last page. core.js fills the table body (#sum-body) and the
+  practice exam line (#sum-exam). Close tags for <main> and .layout opened in top.html.
+  ===================================================================================== -->
+    <section class="intro summary" id="summary" data-sg="summary-page">
+      <span class="kicker">Your summary</span>
+      <h2>Where you stand</h2>
+      <p class="src">Updates as you answer. First-try results show what you actually knew.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>{{unit_label}}</th><th>Confidence</th><th>Answered</th><th>Right first try</th></tr></thead>
+        <tbody id="sum-body"></tbody>
+      </table></div>
+      <!--IF_EXAM-->
+      <p class="src" id="sum-exam">Practice exam: not taken yet.</p>
+      <!--END_IF_EXAM-->
+      <p class="src">Start with any {{unit_lower}} marked Shaky or with fewer than half right on the first try.<!--IF_EXAM--> Then take the practice exam in one sitting, timed, before reviewing its answers.<!--END_IF_EXAM--></p>
+    </section>
+  </main>
+</div>

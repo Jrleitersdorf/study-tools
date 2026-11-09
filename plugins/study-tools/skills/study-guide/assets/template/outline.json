@@ -1,0 +1,90 @@
+{
+  "_about": "The agreed structure of the guide (phase 4). Copy to <guide>/outline.json. Order of units = order of pages. validate.py outline checks it. Made-up example values.",
+  "sources_dir": "../uploads",
+  "_sources_dir": "The folder holding the user's uploads, absolute or relative to the guide folder. validate.py and build.py re-check the source map against it.",
+  "units": [
+    {
+      "id": "ex1",
+      "num": "1",
+      "title": "Radioactive Decay",
+      "label": "Lecture",
+      "_label": "Optional: overrides config unit_label for this unit only.",
+      "file": "units/ex1.html",
+      "questions": "units/ex1.questions.html",
+      "solutions": "units/ex1.solutions.html",
+      "sections": [
+        {
+          "id": "ex1-1",
+          "title": "The exponential decay law",
+          "sources": [
+            "slides/example01.pdf p2-6"
+          ]
+        },
+        {
+          "id": "ex1-2",
+          "title": "Half-life and counting half-lives",
+          "sources": [
+            "slides/example01.pdf p7-11"
+          ]
+        },
+        {
+          "id": "ex1-3",
+          "title": "Activity",
+          "sources": [
+            "readings/example-reading.pdf p41-43"
+          ]
+        }
+      ],
+      "sources": [
+        "slides/example01.pdf",
+        "readings/example-reading.pdf",
+        "notes/example-notes.md"
+      ]
+    }
+  ],
+  "exam": {
+    "file": "exam/exam.html",
+    "questions": "exam/exam.questions.html",
+    "solutions": "exam/exam.solutions.html",
+    "_exam": "Optional. The practice exam page. Its time target is practice_minutes in guide.config.json, not here."
+  },
+  "sources": [
+    {
+      "path": "slides/example01.pdf",
+      "kind": "slides",
+      "units": [
+        "ex1"
+      ]
+    },
+    {
+      "path": "readings/example-reading.pdf",
+      "kind": "reading",
+      "units": [
+        "ex1"
+      ],
+      "note": "pages 41 to 43 only"
+    },
+    {
+      "path": "notes/example-notes.md",
+      "kind": "notes",
+      "units": [
+        "ex1"
+      ]
+    },
+    {
+      "path": "exams/example-practice.pdf",
+      "kind": "practice-exam",
+      "units": [],
+      "use": "exam-intel",
+      "note": "used for question style and exam weighting; the user will take it themselves, so no answers leak into the guide"
+    },
+    {
+      "path": "admin/syllabus.pdf",
+      "kind": "other",
+      "units": [],
+      "use": "excluded",
+      "note": "logistics only, no exam content"
+    }
+  ],
+  "_sources": "EVERY uploaded file appears here once. kind: slides | transcript | notes | reading | homework | practice-exam | review-sheet | hints | other. A source with no units must say why in use: exam-intel (shapes questions and tags) or excluded (with a note)."
+}

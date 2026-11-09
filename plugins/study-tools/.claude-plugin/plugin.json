@@ -1,0 +1,20 @@
+{
+  "name": "study-tools",
+  "displayName": "Study Tools",
+  "version": "0.1.2",
+  "description": "Study tools that turn your course material into ways to learn it and prepare for exams.",
+  "author": {
+    "name": "Julian R Leitersdorf",
+    "url": "https://github.com/Jrleitersdorf"
+  },
+  "homepage": "https://github.com/Jrleitersdorf/study-tools",
+  "repository": "https://github.com/Jrleitersdorf/study-tools",
+  "license": "MIT",
+  "keywords": [
+    "study guide",
+    "exam prep",
+    "education",
+    "practice questions",
+    "practice exam"
+  ]
+}

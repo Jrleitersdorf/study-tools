@@ -1,0 +1,210 @@
+<!-- =====================================================================================
+  UNIT PAGE TEMPLATE                                   copy to: <guide>/units/<unit-id>.html
+  -------------------------------------------------------------------------------------
+  One file per unit (a lecture, a topic, a chapter: whatever the agreed outline says).
+  Every element that carries content has a data-sg="..." tag. The tag is the contract: build.py,
+  validate.py and the engine scripts find things by tag, and references/template-reference.md
+  defines every tag, where it sits in the hierarchy, what goes in it and how long it should be.
+
+  HIERARCHY ON THIS PAGE
+    unit                    <section data-sg="unit">           the whole page
+      unit-head             title block (kicker, title, scope line)
+      takeaway              the 3 to 6 sentence summary of the whole unit
+      section               numbered teaching section (h3), repeated
+        subsection          optional h4 block inside a section
+          components        text, equation, figure, table, pitfall, worked-example, list, steps
+      questions             the unit's practice questions (filled by build.py)
+      confidence            the Shaky / OK / Solid rating
+
+  EVERYTHING MARKED "EXAMPLE" IS MADE-UP DEMO CONTENT (an invented physics unit). Replace all of
+  it, keep the structure, delete components you do not need, and remove data-example="true".
+  validate.py fails a real guide that still contains data-example or the example ids.
+  Commented-out snippets (<!~~ ... ~~>, written with ~~ so they nest) show variants you can copy.
+  ===================================================================================== -->
+
+<!-- unit: id = the unit id from outline.json (letters, digits, hyphens; no dots), also used as the
+     prefix for every id on this page. data-num = the number shown to the reader ("3", "3b", "A").
+     data-title = the unit title (same text as the h2). Optional data-label overrides the word
+     "Lecture"/"Chapter"/"Topic" for this unit only (config unit_label is the default). -->
+<section class="unit" id="ex1" data-sg="unit" data-num="1" data-title="Radioactive Decay" data-example="true">
+
+  <!-- ============================== UNIT HEAD ============================== -->
+  <div class="unit-head" data-sg="unit-head">
+    <!-- unit-kicker (shown small, uppercase): the unit word and number only, e.g. "Lecture 1" or
+         "Chapter 3". Same word as config unit_label (or this unit's data-label). Sources go in unit-scope. -->
+    <span class="kicker" data-sg="unit-kicker">Lecture 1</span>
+    <!-- unit-title: same as data-title. 2 to 8 words. -->
+    <h2 data-sg="unit-title">Radioactive Decay</h2>
+    <!-- unit-scope: ONE sentence naming the source material this unit covers and anything moved to or
+         from another unit. This line and the section-sources labels are the ONLY places sources are named.
+         Cite slides the way references/parsing.md says: the page numbers of the file the student has,
+         or the printed slide numbers only when every slide in that deck prints one. No quotes. -->
+    <p class="src" data-sg="unit-scope">Covers the example slides 2 to 14 and the example reading on activity; carbon dating is its own unit.</p>
+  </div>
+
+  <!-- ============================== TAKEAWAY ============================== -->
+  <!-- takeaway: 3 to 6 sentences, one paragraph, that a reader could study from if they read nothing
+       else. State the core results with their key equations inline. The label stays "Takeaway". -->
+  <div class="takeaway" data-sg="takeaway">
+    <span class="lbl">Takeaway</span>
+    <p data-sg="text">A radioactive sample loses a fixed fraction of its remaining nuclei per unit time, so the number left falls exponentially: \(N(t)=N_0e^{-\lambda t}\). The decay constant \(\lambda\) and the half-life \(t_{1/2}=\ln 2/\lambda\) carry the same information, and after \(n\) half-lives a fraction \((1/2)^n\) remains. The activity, the number of decays per second, is \(A=\lambda N\), so it falls with the same half-life as the sample.</p>
+  </div>
+
+  <!-- ============================== SECTION 1 ============================== -->
+  <!-- section: id = "<unit-id>-<n>", numbered in teaching order (1, 2, 3...). A unit usually has 3 to 8.
+       section-title (h3): <span class="n">{num}.{n}</span> then a title of 3 to 9 words.
+       data-short = a 1 to 4 word label used in the contents sidebar and the Ask button.
+       section-sources: which source material this section covers, e.g. "Slides 2 to 6" or
+       "Reading, pages 41 to 44". Short, no sentence. Same citation rule as unit-scope. -->
+  <div class="sect" id="ex1-1" data-sg="section">
+    <h3 data-sg="section-title" data-short="The decay law"><span class="n">1.1</span>The exponential decay law</h3>
+    <p class="pp" data-sg="section-sources">Example slides 2 to 6</p>
+
+    <!-- text: a paragraph of 2 to 3 sentences (the default style). Plain prose that teaches; build each
+         idea on the one before it. Inline math uses \( ... \). Bold (<b>) only for a term being defined. -->
+    <p data-sg="text">Every unstable nucleus in a sample has the same small chance of decaying in the next instant, and that chance does not depend on how long the nucleus has existed. Over a short time \(dt\) a nucleus decays with probability \(\lambda\,dt\), where \(\lambda\) is the <b>decay constant</b>, measured per unit time.</p>
+    <p data-sg="text">With \(N\) nuclei present, about \(\lambda N\,dt\) of them decay in that time, so the number left changes at a rate proportional to the number left.</p>
+
+    <!-- equation: a named equation card. equation-name = 1 to 5 words, uppercase in the page.
+         equation-math holds ONE display equation \[ ... \]; use aligned for several lines (see below).
+         A line longer than about 45 characters of math does not fit a phone: split it with aligned.
+         where (optional) defines each symbol: <dt> the symbol, <dd> its meaning in a short phrase.
+         INSIDE ANY MATH IN HTML: write &amp; for &, \lt for <, \gt for >. -->
+    <div class="eq" data-sg="equation">
+      <span class="eq-name" data-sg="equation-name">Rate of decay</span>
+      <div class="eq-math" data-sg="equation-math">\[\frac{dN}{dt}=-\lambda N\]</div>
+      <dl class="where" data-sg="where">
+        <dt>\(N\)</dt><dd>the number of undecayed nuclei at time \(t\)</dd>
+        <dt>\(\lambda\)</dt><dd>the decay constant, the probability per unit time that one nucleus decays</dd>
+      </dl>
+    </div>
+
+    <!-- derivation: an equation card whose math is a multi-line aligned block. Use \begin{aligned} with
+         &amp; at the alignment point and \\ between lines. Keep each line short so it fits on a phone. -->
+    <div class="eq" data-sg="equation">
+      <span class="eq-name" data-sg="equation-name">Solving the rate equation</span>
+      <div class="eq-math" data-sg="equation-math">\[\begin{aligned}\frac{dN}{N}&amp;=-\lambda\,dt\\ \ln N&amp;=-\lambda t+\ln N_0\\ N(t)&amp;=N_0e^{-\lambda t}\end{aligned}\]</div>
+      <dl class="where" data-sg="where">
+        <dt>\(N_0\)</dt><dd>the number of nuclei at \(t=0\)</dd>
+      </dl>
+    </div>
+
+    <!-- figure: an image file in <guide>/img/. FIGURES COME FROM THE SOURCE SLIDES OR READINGS WHEN THEY EXIST:
+         crop them with scripts/extract.py (see references/parsing.md). Only draw a new figure when no
+         source figure exists and a picture teaches something the text cannot.
+         alt = what the image shows, for a reader who cannot see it (1 to 2 sentences).
+         figure-caption = what to notice, 1 to 2 sentences. Keep loading="lazy"; build.py adds width/height. -->
+    <figure class="fig" data-sg="figure"><img src="img/example-decay.png" alt="A decaying exponential curve of N over N0 against time measured in half-lives, with dotted guides showing 1/2 left after one half-life, 1/4 after two and 1/8 after three" loading="lazy"><figcaption data-sg="figure-caption">The same fraction disappears in every half-life, so the curve never reaches zero: one half-life leaves \(1/2\), two leave \(1/4\), three leave \(1/8\).</figcaption></figure>
+
+    <!-- pitfall: a trap, sign convention or common confusion, placed right where it applies (never in a
+         separate list at the end). Starts with <b>Watch out.</b>. 1 to 3 sentences. -->
+    <div class="pit" data-sg="pitfall"><b>Watch out.</b> The decay is exponential, not linear: after two half-lives a quarter remains, not none. Doubling the time does not double the amount lost.</div>
+
+    <!-- exam-tag: put <span class="tag exam" data-sg="exam-tag">LABEL</span> at the start of the paragraph
+         about something the instructor said or signaled will be tested. LABEL = config exam_hint_label.
+         Use it only with evidence (practice exam, review sheet, an announcement, a transcript remark). -->
+    <p data-sg="text"><span class="tag exam" data-sg="exam-tag">Exam hint</span>Recognizing \(N(t)=N_0e^{-\lambda t}\) from the rate equation, and going back the other way, is the core skill of this unit.</p>
+  </div>
+
+  <!-- ============================== SECTION 2 ============================== -->
+  <div class="sect" id="ex1-2" data-sg="section">
+    <h3 data-sg="section-title" data-short="Half-life"><span class="n">1.2</span>Half-life and counting half-lives</h3>
+    <p class="pp" data-sg="section-sources">Example slides 7 to 11</p>
+    <p data-sg="text">The decay constant is hard to picture, so decay is usually described by the time it takes for half of the sample to decay.</p>
+
+    <!-- subsection: optional h4 block inside a section, for a section with two or three distinct parts.
+         subsection-title = 2 to 7 words. Do not number it. Components go inside the subsection. -->
+    <div class="subsec" data-sg="subsection">
+      <h4 data-sg="subsection-title">From the decay constant to the half-life</h4>
+      <p data-sg="text">Setting \(N(t_{1/2})=N_0/2\) in the decay law and taking logarithms gives the half-life in terms of \(\lambda\).</p>
+      <div class="eq" data-sg="equation">
+        <span class="eq-name" data-sg="equation-name">Half-life</span>
+        <div class="eq-math" data-sg="equation-math">\[t_{1/2}=\frac{\ln 2}{\lambda}\approx\frac{0.693}{\lambda}\]</div>
+      </div>
+      <p data-sg="text">A large decay constant means a short half-life: the two move in opposite directions.</p>
+    </div>
+
+    <div class="subsec" data-sg="subsection">
+      <h4 data-sg="subsection-title">Counting half-lives</h4>
+      <p data-sg="text">When the elapsed time is a whole number of half-lives, no logarithms are needed: each half-life multiplies the amount by one half.</p>
+
+      <!-- table: wrap every table in <div class="tbl" data-sg="table">. <thead> with short column names,
+           numbers in <td class="num">. A table must earn its place: a comparison, a lookup, a pattern.
+           A table whose cells hold long math gets at most 2 columns (put the long math in its own column
+           or move it into an equation card); 3 or more columns are for short entries only. -->
+      <div class="tbl" data-sg="table"><table>
+        <thead><tr><th>Half-lives elapsed</th><th>Fraction left</th><th>Fraction decayed</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td class="num">1/2</td><td class="num">1/2</td></tr>
+          <tr><td class="num">2</td><td class="num">1/4</td><td class="num">3/4</td></tr>
+          <tr><td class="num">3</td><td class="num">1/8</td><td class="num">7/8</td></tr>
+          <tr><td class="num">\(n\)</td><td class="num">\((1/2)^n\)</td><td class="num">\(1-(1/2)^n\)</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- worked-example: a short solved example inside the teaching text (not a practice question).
+           Label "Example". 2 to 5 sentences or a short steps list. -->
+      <div class="wex" data-sg="worked-example">
+        <span class="lbl">Example</span>
+        <p data-sg="text">An isotope has \(t_{1/2}=8\) days. After 24 days, three half-lives have passed, so \((1/2)^3=1/8\) of the sample remains and \(7/8\) has decayed.</p>
+      </div>
+
+      <!-- steps: an ordered procedure, 3 to 6 short items. Use <ul data-sg="list"> for an unordered list. -->
+      <ol class="steps" data-sg="steps">
+        <li>Write the fraction left, \(N/N_0\).</li>
+        <li>If it is a power of \(1/2\), count the half-lives directly.</li>
+        <li>Otherwise solve \(N/N_0=e^{-\lambda t}\) for \(t=\ln(N_0/N)/\lambda\).</li>
+      </ol>
+    </div>
+
+    <!-- skip-tag: like exam-tag, for material the instructor said will NOT be tested. Keep that material
+         very short (one or two sentences) or leave it out. LABEL = config skip_label. -->
+    <p data-sg="text"><span class="tag skip" data-sg="skip-tag">Not tested</span>Why each isotope has the decay constant it has is a question for nuclear physics and is not part of this course.</p>
+  </div>
+
+  <!-- ============================== SECTION 3 ============================== -->
+  <div class="sect" id="ex1-3" data-sg="section">
+    <h3 data-sg="section-title" data-short="Activity"><span class="n">1.3</span>Activity</h3>
+    <p class="pp" data-sg="section-sources">Example reading, pages 41 to 43</p>
+    <p data-sg="text">What a detector counts is not \(N\) but the number of decays per second, the <b>activity</b> \(A=\lambda N\). Because activity is proportional to \(N\), it falls with exactly the same half-life.</p>
+
+    <!-- list: an unordered list of 2 to 5 short, parallel facts. Prefer prose; use a list only when the
+         items are genuinely parallel. -->
+    <ul data-sg="list">
+      <li>The unit of activity is the becquerel: one decay per second.</li>
+      <li>Two samples with the same \(N\) but different \(\lambda\) have different activities.</li>
+    </ul>
+
+    <!-- cross-reference: link to another section with <a href="#<section-id>">number</a>, to another unit
+         with <a href="#<unit-id>">unit word + number</a>. Recall an earlier idea in one clause instead of
+         re-teaching it. -->
+    <p data-sg="text">Since \(N\) itself halves every \(t_{1/2}\) (<a href="#ex1-2">1.2</a>), a sample whose activity has dropped to one eighth has been decaying for three half-lives.</p>
+
+    <!-- MORE VARIANTS YOU CAN COPY (remove the ~~ to use them):
+    <!~~ inline-only equation inside text: \( A = \lambda N \); display equation without a card:
+    <p data-sg="text">\[ A(t) = A_0 e^{-\lambda t} \]</p> ~~>
+    <!~~ equation card without a where list: just omit <dl class="where">. ~~>
+    <!~~ figure pair: two <figure class="fig"> in a row; each still needs alt and a caption. ~~>
+    <!~~ table with math in the header: <th>\(t_{1/2}\)</th> is fine. ~~>
+    <!~~ pitfall with two traps: <div class="pit" data-sg="pitfall"><b>Watch out.</b> First trap. Second trap.</div> ~~>
+    <!~~ renamed symbol: when the sources use one symbol for two things, rename one everywhere in the guide and
+         say so once, where the student would otherwise be confused when going back to the sources:
+         <div class="pit" data-sg="pitfall"><b>Watch out.</b> The course slides also use \(\lambda\) for the
+         wavelength; this guide writes that as \(\ell\) to keep \(\lambda\) for the decay constant.</div> ~~>
+    <!~~ correcting a source: teach the correct statement in the text. Add a pitfall naming the source's version
+         only when the student could be tested on it: <div class="pit" data-sg="pitfall"><b>Watch out.</b> Some
+         course material states X; the correct statement is Y, because Z.</div> ~~>
+    -->
+  </div>
+
+  <!-- ============================== QUESTIONS ============================== -->
+  <!-- questions: keep this block exactly as it is apart from the ids. id = "<unit-id>-q".
+       build.py replaces the QUESTIONS marker with units/<unit-id>.questions.html and the hidden worked
+       solutions from units/<unit-id>.solutions.html. The summary text stays "Questions". -->
+  <details class="questions" id="ex1-q" data-sg="questions" open><summary>Questions <span class="questions-meta"></span></summary><div class="questions-body">
+<!--QUESTIONS-->
+  </div></details>
+
+  <!-- confidence: data-sec = the unit id. The sentence names the unit with the unit word and number. -->
+  <div class="conf" data-sg="confidence" data-sec="ex1"><p>How confident are you on Lecture 1?</p></div>
+</section>

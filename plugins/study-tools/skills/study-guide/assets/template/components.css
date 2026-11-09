@@ -1,0 +1,50 @@
+/* questions (class "check") */
+.checks{display:flex;flex-direction:column;gap:12px}
+.checks-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.checks-head .hint{font-size:.82rem;color:var(--muted)}
+.check{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:var(--surface);display:flex;flex-direction:column;gap:12px;transition:border-color .2s}
+.check[data-res="right"]{border-color:color-mix(in srgb,var(--good) 55%,var(--line))}
+.check[data-res="wrong"]{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.q{display:flex;gap:10px;align-items:baseline}
+.q .qn{font-family:var(--mono);font-size:.74rem;color:var(--muted);flex:none;min-width:2.6em}
+.q .qt{min-width:0}
+.q .tag{font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-left:6px;white-space:nowrap}
+.opts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--surface);min-width:0}
+.opt:hover{border-color:var(--line-2)}
+.opt input{margin:4px 0 0;flex:none;accent-color:var(--accent)}
+.opt .k:empty{display:none}
+.opt .k{font-family:var(--mono);font-size:.78rem;color:var(--muted);flex:none;padding-top:2px}
+.opt .t{min-width:0}
+.opt.sel{border-color:var(--accent-line);background:var(--accent-soft)}
+.opt.ok{border-color:color-mix(in srgb,var(--good) 60%,transparent);background:var(--good-soft)}
+.opt.no{border-color:color-mix(in srgb,var(--bad) 60%,transparent);background:var(--bad-soft)}
+.opt.miss{border-style:dashed;border-color:var(--good)}
+.locked .opt{cursor:default}
+.numrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.numrow input{font-family:var(--mono);font-size:.95rem;padding:7px 10px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);color:var(--ink);width:10em;max-width:100%}
+.numrow .suffix{font-size:.85rem;color:var(--muted)}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{font-family:var(--sans);font-size:.88rem;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:7px 14px;cursor:pointer}
+button:hover{border-color:var(--accent-line)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.primary:hover{filter:brightness(1.07)}
+.nudge{font-size:.82rem;color:var(--bad)}
+.fb{border-radius:9px;padding:12px 14px;background:var(--surface-2);display:flex;flex-direction:column;gap:6px}
+.fb .verdict{font-weight:600}
+.fb .verdict.r{color:var(--good)}
+.fb .verdict.w{color:var(--bad)}
+.fb .first{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.check>.expl{display:none}
+.expl{color:var(--ink-2)}
+.expl p+p{margin-top:6px}
+
+/* confidence */
+.conf{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--line)}
+.conf p{font-size:.92rem;color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:7px 16px;background:var(--surface)}
+.seg button+button{border-left:1px solid var(--line-2)}
+.seg button[aria-pressed="true"][data-v="shaky"]{background:var(--bad-soft);color:var(--bad);font-weight:600}
+.seg button[aria-pressed="true"][data-v="ok"]{background:var(--warn-soft);color:var(--warn);font-weight:600}
+.seg button[aria-pressed="true"][data-v="solid"]{background:var(--good-soft);color:var(--good);font-weight:600}

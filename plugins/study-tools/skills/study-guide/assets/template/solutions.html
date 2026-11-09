@@ -1,0 +1,64 @@
+<!-- =====================================================================================
+  WORKED SOLUTIONS TEMPLATE                   copy to: <guide>/units/<unit-id>.solutions.html
+  -------------------------------------------------------------------------------------
+  One block per question, same order as the questions file. Hidden until the reader presses
+  Show answer (or Show worked solution after a correct answer). Written as the reader would solve
+  it with pen and paper (and no calculator unless config calculator is true).
+
+  solution            <div class="sol" data-sg="solution" data-for="<question data-id>">
+    solution-heading  <p class="sol-h" data-sg="solution-heading">Worked solution</p>  (keep the text as is)
+    solution-steps    <ol class="ws" data-sg="solution-steps">: numeric questions 3 to 6 steps; mc / multi / tf 2 to 5 steps.
+                      Each step starts with a bold 1 to 4 word label ("Pull out what you know.",
+                      "Formula.", "Substitute.", "Estimate by hand."). Keep exact forms (fractions, e,
+                      roots) until the end, then approximate with values a person knows
+                      (e^-1 ~ 0.368, ln 2 ~ 0.693, sqrt 2 ~ 1.414). For multiple choice, dismiss the
+                      tempting wrong options in a clause each. A small table is welcome when it helps.
+    solution-answer   <p class="sol-a" data-sg="solution-answer"><b>Answer:</b> ...</p>: exactly the key: "(c) 1/8", "True",
+                      "\(e^{-1}\approx0.368\)". Must agree with data-ans.
+    solution-why      <p class="sol-why" data-sg="solution-why">: optional, ONE sentence: the transferable pattern or the trap.
+  Each solution should take under a minute to read.
+
+  EVERYTHING BELOW IS A MADE-UP EXAMPLE (unit "ex1"): replace it.
+  ===================================================================================== -->
+
+<div class="sol" data-sg="solution" data-for="ex1_q1">
+  <p class="sol-h" data-sg="solution-heading">Worked solution</p>
+  <ol class="ws" data-sg="solution-steps">
+    <li><b>Pull out what you know.</b> \(t_{1/2}=10\) min and \(t=30\) min.</li>
+    <li><b>Count half-lives.</b> \(t/t_{1/2}=30/10=3\).</li>
+    <li><b>Halve three times.</b> \((1/2)^3=1/8\). (a) divides by 3 instead of halving; (d) treats decay as linear.</li>
+  </ol>
+  <p class="sol-a" data-sg="solution-answer"><b>Answer:</b> (c) 1/8</p>
+  <p class="sol-why" data-sg="solution-why">When the time is a whole number of half-lives, multiply by 1/2 once per half-life; no logarithms needed.</p>
+</div>
+
+<div class="sol" data-sg="solution" data-for="ex1_q2">
+  <p class="sol-h" data-sg="solution-heading">Worked solution</p>
+  <ol class="ws" data-sg="solution-steps">
+    <li><b>Key relations.</b> \(t_{1/2}=\ln2/\lambda\), \(N=N_0(1/2)^{t/t_{1/2}}\) and \(A=\lambda N\).</li>
+    <li><b>Check each.</b> (a) is the relation itself. (b) \(\lambda\to2\lambda\) gives \(\ln2/(2\lambda)\), half as long. (c) fails because \(A\) is proportional to \(N\). (d) \((1/2)^2=1/4\).</li>
+  </ol>
+  <p class="sol-a" data-sg="solution-answer"><b>Answer:</b> (a), (b) and (d)</p>
+</div>
+
+<div class="sol" data-sg="solution" data-for="ex1_q3">
+  <p class="sol-h" data-sg="solution-heading">Worked solution</p>
+  <ol class="ws" data-sg="solution-steps">
+    <li><b>Relation.</b> \(t_{1/2}=\ln2/\lambda\): the half-life is inversely proportional to \(\lambda\).</li>
+    <li><b>Apply.</b> Doubling \(\lambda\) halves \(t_{1/2}\), so the statement is false.</li>
+  </ol>
+  <p class="sol-a" data-sg="solution-answer"><b>Answer:</b> False</p>
+  <p class="sol-why" data-sg="solution-why">Trap: a bigger decay constant means faster decay, so a shorter half-life.</p>
+</div>
+
+<div class="sol" data-sg="solution" data-for="ex1_q4">
+  <p class="sol-h" data-sg="solution-heading">Worked solution</p>
+  <ol class="ws" data-sg="solution-steps">
+    <li><b>Pull out what you know.</b> \(\lambda=0.5\ \text{h}^{-1}\), \(t=2\) h.</li>
+    <li><b>Formula.</b> \(N/N_0=e^{-\lambda t}\).</li>
+    <li><b>Substitute.</b> \(\lambda t=0.5\cdot2=1\), so \(N/N_0=e^{-1}\).</li>
+    <li><b>Estimate by hand.</b> \(e^{-1}\approx1/2.718\approx0.368\).</li>
+  </ol>
+  <p class="sol-a" data-sg="solution-answer"><b>Answer:</b> \(e^{-1}\approx0.368\)</p>
+  <p class="sol-why" data-sg="solution-why">When \(\lambda t\) comes out to a whole number, leave the answer as a power of \(e\).</p>
+</div>

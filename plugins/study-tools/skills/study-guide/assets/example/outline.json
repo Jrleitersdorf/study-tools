@@ -1,0 +1,68 @@
+{
+  "_about": "Example outline. ex1 and the exam come straight from the template files; ex2 lives in this folder.",
+  "units": [
+    {
+      "id": "ex1",
+      "num": "1",
+      "title": "Radioactive Decay",
+      "file": "../template/unit.html",
+      "questions": "../template/questions.html",
+      "solutions": "../template/solutions.html",
+      "sections": [
+        {
+          "id": "ex1-1",
+          "title": "The exponential decay law"
+        },
+        {
+          "id": "ex1-2",
+          "title": "Half-life and counting half-lives"
+        },
+        {
+          "id": "ex1-3",
+          "title": "Activity"
+        }
+      ],
+      "sources": [
+        "slides/example01.pdf"
+      ]
+    },
+    {
+      "id": "ex2",
+      "num": "2",
+      "title": "Radiocarbon Dating",
+      "file": "units/ex2.html",
+      "questions": "units/ex2.questions.html",
+      "solutions": "units/ex2.solutions.html",
+      "sections": [
+        {
+          "id": "ex2-1",
+          "title": "Dating with a known half-life"
+        }
+      ],
+      "sources": [
+        "slides/example02.pdf"
+      ]
+    }
+  ],
+  "exam": {
+    "file": "../template/exam.html",
+    "questions": "../template/exam.questions.html",
+    "solutions": "../template/exam.solutions.html"
+  },
+  "sources": [
+    {
+      "path": "slides/example01.pdf",
+      "kind": "slides",
+      "units": [
+        "ex1"
+      ]
+    },
+    {
+      "path": "slides/example02.pdf",
+      "kind": "slides",
+      "units": [
+        "ex2"
+      ]
+    }
+  ]
+}

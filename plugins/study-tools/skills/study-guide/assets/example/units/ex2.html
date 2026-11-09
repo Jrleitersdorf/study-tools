@@ -1,0 +1,28 @@
+<!-- Example unit 2 of the kitchen-sink guide (made-up content). It shows a short unit that recalls
+     unit 1 in one clause instead of re-teaching it, and links back to it. -->
+<section class="unit" id="ex2" data-sg="unit" data-num="2" data-title="Radiocarbon Dating" data-example="true">
+  <div class="unit-head" data-sg="unit-head">
+    <span class="kicker" data-sg="unit-kicker">Lecture 2</span>
+    <h2 data-sg="unit-title">Radiocarbon Dating</h2>
+    <p class="src" data-sg="unit-scope">Covers the example slides 2 to 9 of lecture 2.</p>
+  </div>
+  <div class="takeaway" data-sg="takeaway">
+    <span class="lbl">Takeaway</span>
+    <p data-sg="text">A living organism keeps its carbon-14 at a steady level; when it dies the carbon-14 decays with a half-life of 5730 years and is not replaced. Measuring the fraction \(N/N_0\) that is left and inverting the decay law gives the time since death, \(t=\frac{t_{1/2}}{\ln 2}\ln\frac{N_0}{N}\).</p>
+  </div>
+  <div class="sect" id="ex2-1" data-sg="section">
+    <h3 data-sg="section-title" data-short="Dating"><span class="n">2.1</span>Dating with a known half-life</h3>
+    <p class="pp" data-sg="section-sources">Example slides 2 to 9</p>
+    <p data-sg="text">The decay law of <a href="#ex1-1">1.1</a> runs backwards as a clock: if you know how much a sample started with and how much is left, the elapsed time follows. For carbon-14 the starting level is the one in living tissue, which stays constant while the organism exchanges carbon with its surroundings.</p>
+    <div class="eq" data-sg="equation">
+      <span class="eq-name" data-sg="equation-name">Age from the fraction left</span>
+      <div class="eq-math" data-sg="equation-math">\[\begin{aligned}\frac{N}{N_0}&amp;=e^{-\lambda t}\\ t&amp;=\frac{1}{\lambda}\ln\frac{N_0}{N}=\frac{t_{1/2}}{\ln 2}\ln\frac{N_0}{N}\end{aligned}\]</div>
+      <dl class="where" data-sg="where"><dt>\(N/N_0\)</dt><dd>the carbon-14 left, as a fraction of the level in living tissue</dd></dl>
+    </div>
+    <div class="pit" data-sg="pitfall"><b>Watch out.</b> The ratio inside the logarithm is \(N_0/N\), which is at least 1, so the age comes out positive. Writing \(N/N_0\) gives a negative age.</div>
+  </div>
+  <details class="questions" id="ex2-q" data-sg="questions" open><summary>Questions <span class="questions-meta"></span></summary><div class="questions-body">
+<!--QUESTIONS-->
+  </div></details>
+  <div class="conf" data-sg="confidence" data-sec="ex2"><p>How confident are you on Lecture 2?</p></div>
+</section>

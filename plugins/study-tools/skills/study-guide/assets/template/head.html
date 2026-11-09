@@ -1,0 +1,14 @@
+<!-- =====================================================================================
+  head.html  (TEMPLATE, filled by build.py; do not copy into a guide folder)
+  build.py replaces every {{key}} with the value from guide.config.json and then appends
+  <style> + tokens.css + components.css + layout.css + </style>.
+  - <title> is the artifact name shown in the browser tab and gallery: keep it short (2 to 6 words).
+  - The inline script applies the reader's saved Light/Dark choice before the first paint.
+  - Fonts come from Google Fonts (the only font host the artifact CSP allows) with system fallbacks.
+  ===================================================================================== -->
+<title>{{guide_title}}</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<script>try{var t=localStorage.getItem("{{storage_key}}-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-guide-theme",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,400&display=swap">

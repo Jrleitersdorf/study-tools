@@ -1,0 +1,17 @@
+{
+  "name": "study-tools",
+  "description": "Study tools that turn your course material into ways to learn it and prepare for exams.",
+  "owner": {
+    "name": "Julian R Leitersdorf",
+    "url": "https://github.com/Jrleitersdorf"
+  },
+  "plugins": [
+    {
+      "name": "study-tools",
+      "source": "./plugins/study-tools",
+      "description": "Study tools that turn your course material into ways to learn it and prepare for exams.",
+      "category": "education",
+      "tags": ["study guide", "exam prep", "practice questions", "practice exam"]
+    }
+  ]
+}

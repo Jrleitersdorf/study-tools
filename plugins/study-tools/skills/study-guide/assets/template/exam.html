@@ -1,0 +1,43 @@
+<!-- =====================================================================================
+  PRACTICE EXAM PAGE TEMPLATE                                  copy to: <guide>/exam/exam.html
+  -------------------------------------------------------------------------------------
+  One practice exam per guide, placed after the last unit and before the summary. It mixes
+  questions from every unit in the format of the real exam. The engine hides Check on every
+  question: nothing is graded until the reader presses Submit exam. Then each question shows
+  right or wrong (not the answer), a score appears with a breakdown by unit, and Show answer and
+  Solve it for me become available. Retake clears everything. A timer counts up against
+  practice_minutes in guide.config.json (the only place the practice exam's length is set).
+  Ask works here too; before submission it gives hints only.
+
+  Length: when the guide covers the whole exam, match the real exam (question count, mix and
+  minutes). When it covers only part of the exam's scope (for example one lecture of a quiz on
+  six), size it to that share: about share x real question count, at least about 10 questions,
+  and practice_minutes = share x exam_minutes, rounded. Say the share in exam-instructions.
+
+  exam                <section data-sg="exam">: id must be "exam".
+    data-title        the page title, e.g. "Practice exam" or "Practice midterm".
+    exam-head         kicker, title (same as data-title) and exam-instructions.
+    exam-instructions 2 to 4 sentences: format, number of questions, conditions (calculator or not),
+                      what share of the real exam it covers when that is not all of it, and
+                      "nothing is graded until you submit".
+    exam-bar          leave EMPTY: the engine draws the timer and the answered count.
+    exam-body         id "exam-q": build.py inserts exam/exam.questions.html here, before exam-submit.
+    exam-submit       leave EMPTY: the engine draws Submit, the score and Retake.
+  Questions use the same markup as unit questions, with ids "exam_q<n>" and one extra attribute,
+  data-from="<unit-id>", naming the unit each question tests (used for the score breakdown).
+  EVERYTHING BELOW IS A MADE-UP EXAMPLE: replace the text, keep the structure. (The example has only
+  six questions to keep the template short; a real practice exam has at least about 10.)
+  ===================================================================================== -->
+<section class="exam-page" id="exam" data-sg="exam" data-title="Practice exam" data-example="true">
+  <div class="exam-head" data-sg="exam-head">
+    <span class="kicker">Practice exam</span>
+    <h2>Practice exam</h2>
+    <!-- exam-instructions: shown on screen. Format, count, conditions, share of the real exam, and that nothing is graded until Submit. -->
+    <p data-sg="exam-instructions">Six questions in the format of the real quiz: multiple choice, true or false and short numeric answers, with no calculator. They cover the two lectures in this guide, about two fifths of the quiz, so they take 20 minutes rather than the full 50. Work through them in one sitting and press Submit exam at the end; nothing is graded before that.</p>
+  </div>
+  <div class="exam-bar" data-sg="exam-bar"></div>
+  <div class="exam-body" id="exam-q" data-sg="exam-body">
+<!--QUESTIONS-->
+    <div class="exam-submit" data-sg="exam-submit"></div>
+  </div>
+</section>
