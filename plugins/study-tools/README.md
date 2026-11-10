@@ -24,7 +24,7 @@ You upload everything you have for the class: lecture slides, recordings or tran
 
 **A practice exam** in the format and length of the real one, graded only when you submit. You get a score broken down by unit, then Show answer and Solve it for me on every question, plus a timer and a retake.
 
-**An Ask button** that follows the section you are reading. It saves your questions, answers them in place and takes follow-ups.
+**An Ask button** that follows the section you are reading. It saves your questions, answers them in place and takes follow-ups. On a wide screen each question becomes its own card beside the text, at the spot you asked it, and you can drag it up or down.
 
 **Everything else:** progress, questions and walkthroughs saved across devices, a Light and Dark mode, and a layout that works on a phone.
 
