@@ -95,7 +95,7 @@ fs.mkdirSync(SHOTS, { recursive: true });
 
 const src = fs.readFileSync(built, 'utf8');
 const pageFile = path.join(path.dirname(path.resolve(built)), '.sg-test-page.html');
-fs.writeFileSync(pageFile, '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>' +
+fs.writeFileSync(pageFile, '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0}img{max-width:100%}</style>' +
   src.split('<header class="top"')[0] + '</head><body><header class="top"' + src.split('<header class="top"').slice(1).join('<header class="top"') + '</body></html>');
 
 const MOCK = `(() => {
@@ -211,8 +211,8 @@ async function goPage(p, id) { await p.evaluate(i => { const a = document.create
     await p.click('.ap-now');
     await p.waitForFunction(() => Object.values(window.sgQA.docs()).some(d => d.thread.length === 2), null, { timeout: 10000 });
     await p.waitForTimeout(500);
-    const ask = await p.evaluate(s => ({ cards: document.querySelectorAll('#' + s + ' .qbox .qcard').length, answer: (document.querySelector('#' + s + ' .qc-a .qc-text') || {}).textContent || '', role: window.__calls[window.__calls.length - 1].slice(-1)[0].role }), sect);
-    check('Ask saves the question and answers it at the bottom of its section', ask.cards === 1 && ask.answer.length > 10 && ask.role === 'user', JSON.stringify(ask));
+    const ask = await p.evaluate(s => ({ cards: document.querySelectorAll('#' + s + ' .qbox .qcard, .qrail .rcard:not([hidden]) .qcard').length, answer: (document.querySelector('#' + s + ' .qc-a .qc-text, .qrail .rcard:not([hidden]) .qc-a .qc-text') || {}).textContent || '', role: window.__calls[window.__calls.length - 1].slice(-1)[0].role }), sect);
+    check('Ask saves the question and answers it beside or below its section', ask.cards === 1 && ask.answer.length > 10 && ask.role === 'user', JSON.stringify(ask));
     await p.screenshot({ path: path.join(SHOTS, 'desktop-ask.png') });
     await p.click('.ap-x').catch(() => { });
 
@@ -223,7 +223,7 @@ async function goPage(p, id) { await p.evaluate(i => { const a = document.create
     await p.waitForTimeout(1200);
     const kept = await p.evaluate(ids => ids.filter(id => document.querySelector(`.check[data-id="${id}"]`).dataset.res).length, answered);
     check('answers survive a reload', kept === answered.length && answered.length > 0, kept + ' of ' + answered.length);
-    check('Ask question survives a reload', await p.evaluate(() => document.querySelectorAll('.qbox .qcard').length) === 1, '');
+    check('Ask question survives a reload', await p.evaluate(() => document.querySelectorAll('.qbox .qcard, .qrail .qcard').length) === 1, '');
 
     /* practice exam */
     if (info.exam) {

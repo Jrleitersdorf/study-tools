@@ -1,3 +1,25 @@
+/* The hidden attribute always wins over class rules that set display (.ask-pop, .ask-wrap, .qbox and others). */
+[hidden]{display:none!important}
+/* side rail of question cards (wide screens) */
+.qrail{position:relative;align-self:stretch;min-width:0;overflow-anchor:none}
+.qrail *{overflow-anchor:none}
+@media (min-width:1240px){.layout.has-rail{max-width:1660px;grid-template-columns:230px minmax(0,1fr) 340px;gap:36px}}
+.rcard{position:absolute;left:0;right:0;background:var(--surface);border:1px solid var(--accent-line);border-radius:11px;box-shadow:0 6px 18px rgba(0,0,0,.10);transition:top .18s ease,box-shadow .18s ease}
+.rcard.drag{transition:none;z-index:5;box-shadow:0 16px 36px rgba(0,0,0,.28)}
+.rcard.new{box-shadow:0 0 0 3px var(--accent),0 6px 18px rgba(0,0,0,.10)}
+.rc-head{display:flex;align-items:center;gap:8px;padding:7px 8px 7px 10px;border-bottom:1px solid var(--line);cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;background:color-mix(in srgb,var(--accent-soft) 45%,var(--surface));border-radius:11px 11px 0 0}
+.rcard.drag .rc-head{cursor:grabbing}
+.rc-grip{color:var(--muted);font-size:.85rem;letter-spacing:-3px;flex:none}
+.rc-sec,.rc-q{flex:1;min-width:0;font-size:.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-q{display:none;color:var(--ink);font-weight:600}
+.rc-min{flex:none;border:0;background:transparent;color:var(--muted);font-size:1.05rem;cursor:pointer;padding:0 6px;line-height:1;border-radius:6px}
+.rc-min:hover{background:var(--surface-2);color:var(--ink)}
+.rc-body .qcard{border:0;border-radius:0 0 11px 11px}
+.rcard.min .rc-body,.rcard.min .rc-sec{display:none}
+.rcard.min .rc-q{display:block}
+.rcard.min .rc-head{border-bottom:0;border-radius:11px}
+.qrail .qc-q,.qrail .qc-a{grid-template-columns:minmax(0,1fr);gap:2px}
+.qrail .qc-lbl{min-width:0}
 /* header */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
 .top-in{max-width:1220px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
@@ -261,7 +283,7 @@ details.questions>summary{font-family:var(--serif);font-size:1.15rem}
   mjx-container[display="true"]{margin:.15em 0!important}
   .sect p,.takeaway p,.intro p{max-width:none}
   .where{font-size:.9rem}
-  .top,.toc,details.questions,.conf,.summary,.print-hide,.pager,.unit-cards,.qbox,.ask-wrap,.mathhint,.walk,.walkbox,main>section[data-sg="exam"]{display:none!important}
+  .top,.toc,details.questions,.conf,.summary,.print-hide,.pager,.unit-cards,.qbox,.qrail,.ask-wrap,.mathhint,.walk,.walkbox,main>section[data-sg="exam"]{display:none!important}
   main>section[data-sg="unit"][hidden],main>section#intro[hidden]{display:flex!important}
   .layout{display:block;padding:0;max-width:none}
   main{gap:0}
