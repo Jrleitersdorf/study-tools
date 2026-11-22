@@ -1,0 +1,188 @@
+{
+  "_about": "Made-up kitchen-sink data: one example of every component (mc, multi, tf with justification, num with an image, written code, math, a key dispute, a graded rubric, lessons, fixes). Copy it as review.json in a review folder and replace everything. Keys that start with _ are ignored. The fields are documented in review.html.",
+  "meta": {
+    "title": "STAT 101 Quiz 1 Review",
+    "course": "STAT 101, Introduction to Statistics",
+    "subject": "statistics",
+    "exam": "Quiz 1: Probability and Expectation (practice)",
+    "kind": "practice",
+    "taken": "2026-10-02",
+    "time": { "used_min": 24, "limit_min": 30 },
+    "key_source": "Claude's key (no key was supplied)",
+    "credit_rules": [
+      "Select-all items are all-or-nothing.",
+      "True/false items need a correct justification for credit."
+    ],
+    "exam_mode": "open",
+    "storage_key": "stat101-quiz1-review",
+    "student_name": "",
+    "notes": [
+      "No answer key was supplied, so every answer was solved twice, independently. Question 3's printed wording is ambiguous; see its card."
+    ]
+  },
+  "units": [
+    { "id": "u1", "name": "Probability rules" },
+    { "id": "u2", "name": "Expectation and variance" },
+    { "id": "u3", "name": "Computing statistics in Python" }
+  ],
+  "habits": [
+    { "id": "h1", "name": "Adding where independence multiplies", "what": "Uses \\(P(A)+P(B)\\) for the probability that both events happen." },
+    { "id": "h2", "name": "Scaling variance by the constant, not its square", "what": "Writes \\(\\mathrm{Var}(aX)=a\\,\\mathrm{Var}(X)\\)." },
+    { "id": "h3", "name": "Dividing by \\(n-1\\) where the mean needs \\(n\\)", "what": "Mixes the sample-variance denominator into the mean." }
+  ],
+  "questions": [
+    {
+      "id": "1", "type": "mc", "points": 2, "unit": "u1", "habits": ["h1"],
+      "prompt": "Events \\(A\\) and \\(B\\) are independent, with \\(P(A)=\\frac{1}{3}\\) and \\(P(B)=\\frac{1}{4}\\). What is \\(P(A\\cap B)\\), the probability that both happen?",
+      "options": [
+        { "key": "A", "text": "\\(\\frac{1}{12}\\)" },
+        { "key": "B", "text": "\\(\\frac{7}{12}\\)" },
+        { "key": "C", "text": "\\(\\frac{1}{2}\\)" },
+        { "key": "D", "text": "\\(\\frac{1}{7}\\)" }
+      ],
+      "answer": { "choice": "B" }, "correct": { "choice": "A" },
+      "verdict": "wrong", "earned": 0, "confidence": "solid",
+      "explanation": "For independent events, \\(P(A\\cap B)=P(A)\\,P(B)=\\frac{1}{3}\\cdot\\frac{1}{4}=\\frac{1}{12}\\). Option B is \\(P(A)+P(B)\\), which is not even a probability of \"both\".",
+      "walkthrough": {
+        "think": "\"Both\" means intersection, and independence turns an intersection into a product.",
+        "steps": [
+          "Givens: \\(P(A)=\\frac{1}{3}\\), \\(P(B)=\\frac{1}{4}\\), \\(A\\) and \\(B\\) independent.",
+          "Rule: \\(P(A\\cap B)=P(A)\\,P(B)\\) when \\(A\\) and \\(B\\) are independent.",
+          "Multiply: \\(\\frac{1}{3}\\cdot\\frac{1}{4}=\\frac{1}{12}\\)."
+        ],
+        "answer": "A, \\(\\frac{1}{12}\\).",
+        "trap": "Adding gives \\(\\frac{7}{12}\\), which is larger than either probability alone. \"Both\" can never be more likely than one of them."
+      }
+    },
+    {
+      "id": "2", "type": "multi", "points": 2, "unit": "u2", "habits": [],
+      "prompt": "Which statements about the sample mean \\(\\bar{x}\\) of a data set are true? Select all that apply.",
+      "options": [
+        { "key": "A", "text": "It is sensitive to outliers." },
+        { "key": "B", "text": "It always equals the median." },
+        { "key": "C", "text": "For a symmetric distribution it is close to the median." },
+        { "key": "D", "text": "It can be a value that does not occur in the data." }
+      ],
+      "answer": { "choice": ["A", "C", "D"] }, "correct": { "choice": ["A", "C", "D"] },
+      "verdict": "right", "earned": 2, "confidence": "solid",
+      "explanation": "One extreme value moves \\(\\bar{x}\\) (A). Mean and median agree for symmetric data but not in general (B false, C true). The mean of 1 and 2 is 1.5, which is not in the data (D)."
+    },
+    {
+      "id": "3", "type": "tf", "points": 2, "unit": "u2", "habits": ["h2"],
+      "format": "True/false with justification",
+      "prompt": "True or false, with one sentence of justification: if \\(\\mathrm{Var}(X)=4\\), then \\(\\mathrm{Var}(3X)=12\\).",
+      "answer": { "choice": "T", "text": "Multiplying by 3 multiplies the variance by 3." },
+      "correct": { "choice": "F", "text": "False: \\(\\mathrm{Var}(aX)=a^{2}\\,\\mathrm{Var}(X)\\), so \\(\\mathrm{Var}(3X)=9\\cdot 4=36\\)." },
+      "verdict": "wrong", "earned": 0, "confidence": "guessed",
+      "student_note": "guessed",
+      "explanation": "Variance is measured in squared units, so a constant factor comes out squared: \\(\\mathrm{Var}(3X)=36\\). The standard deviation scales by 3, from 2 to 6.",
+      "key_dispute": "This is an example of the dispute box. If the printed quiz had meant the standard deviation, the claim would still be false (it becomes 6, not 12); the key stands either way.",
+      "walkthrough": {
+        "think": "Ask what units the quantity has. Variance is in squared units, so constants come out squared.",
+        "steps": [
+          "Rule: \\(\\mathrm{Var}(aX)=a^{2}\\,\\mathrm{Var}(X)\\) for any constant \\(a\\).",
+          "Here \\(a=3\\): \\(\\mathrm{Var}(3X)=9\\cdot 4=36\\).",
+          "Compare with the claim, 12: false."
+        ],
+        "answer": "False, because \\(\\mathrm{Var}(3X)=3^{2}\\cdot 4=36\\).",
+        "trap": "Linearity holds for the mean, \\(E[aX]=a\\,E[X]\\), but not for the variance."
+      }
+    },
+    {
+      "id": "4", "type": "num", "points": 2, "unit": "u2", "habits": [],
+      "prompt": "The chart shows the distribution of a random variable \\(X\\). Find the expected value \\(E[X]\\).",
+      "image": { "src": "img/example-dist.svg", "alt": "Bar chart: P(X=0)=0.2, P(X=1)=0.5, P(X=2)=0.3.", "caption": "Distribution of \\(X\\)." },
+      "answer": { "value": "1.1", "text": "\\(0(0.2)+1(0.5)+2(0.3)\\)" },
+      "correct": { "value": 1.1, "tolerance": 0.001, "text": "\\(E[X]=\\sum_k k\\,P(X=k)\\), so \\(E[X]=0+0.5+0.6=1.1\\), where \\(k\\) runs over the values of \\(X\\)." },
+      "verdict": "right", "earned": 2, "confidence": "solid",
+      "explanation": "The expected value is the probability-weighted sum of the values: \\(E[X]=\\sum_k k\\,P(X=k)\\)."
+    },
+    {
+      "id": "5", "type": "written", "points": 3, "unit": "u3", "habits": ["h3"],
+      "format": "Code writing",
+      "prompt": "Write a Python function `mean(xs)` that returns the arithmetic mean of a non-empty list of numbers, without using any library.",
+      "answer": { "code": "def mean(xs):\n    total = 0\n    for x in xs:\n        total += x\n    return total / (len(xs) - 1)", "lang": "python" },
+      "correct": { "code": "def mean(xs):\n    total = 0\n    for x in xs:\n        total += x\n    return total / len(xs)", "lang": "python", "text": "Any correct answer sums every element once and divides by \\(n\\), the number of elements." },
+      "verdict": "partial", "earned": { "low": 1, "likely": 2, "high": 2 }, "confidence": "solid",
+      "explanation": "The loop is right, but the mean divides by \\(n\\), not \\(n-1\\). For `[2, 4]` the function returns 6 instead of 3.",
+      "rubric": [
+        { "point": "Sums every element exactly once", "marks": 1, "got": 1 },
+        { "point": "Divides by the number of elements, \\(n\\)", "marks": 1, "got": 0, "comment": "Divides by \\(n-1\\), the sample-variance denominator." },
+        { "point": "Valid Python that returns the value", "marks": 1, "got": 1 }
+      ],
+      "walkthrough": {
+        "think": "Test any formula on a tiny case you can do in your head before you hand it in.",
+        "steps": [
+          "Write the definition: \\(\\bar{x}=\\frac{1}{n}\\sum_{i=1}^{n}x_i\\), where \\(n\\) is the number of values.",
+          "Translate: a running total, then `total / len(xs)`.",
+          "Check with `[2, 4]`: the total is 6, \\(n=2\\), the mean is 3."
+        ],
+        "answer": "`return total / len(xs)`; see the model answer.",
+        "trap": "\\(n-1\\) belongs to the sample variance \\(s^{2}=\\frac{1}{n-1}\\sum_{i=1}^{n}(x_i-\\bar{x})^{2}\\), not to the mean."
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "L1", "title": "\"Both\" multiplies when events are independent",
+      "habits": ["h1"], "questions": ["1"],
+      "idea": "For independent events, the chance that both happen is the product \\(P(A)\\,P(B)\\). Adding is for \"either\" when the events cannot happen together.",
+      "how": "Translate the words first: \"both\" is \\(\\cap\\), \"either\" is \\(\\cup\\). Then check the size: \"both\" must be at most the smaller probability.",
+      "example": {
+        "prompt": "A fair coin is flipped and a fair die is rolled. What is the probability of heads and a six?",
+        "solution": "The two are independent, so \\(P=\\frac{1}{2}\\cdot\\frac{1}{6}=\\frac{1}{12}\\), smaller than either one alone."
+      },
+      "trap": "A sum larger than both inputs is a red flag for \"both\"."
+    },
+    {
+      "id": "L2", "title": "Constants come out of a variance squared",
+      "habits": ["h2"], "questions": ["3"],
+      "idea": "\\(\\mathrm{Var}(aX+b)=a^{2}\\,\\mathrm{Var}(X)\\): the shift \\(b\\) does nothing and the scale \\(a\\) is squared, because variance is in squared units.",
+      "how": "Before using a rule, ask whether the quantity is in the original units (mean, standard deviation) or squared units (variance).",
+      "example": {
+        "prompt": "Temperatures \\(C\\) have variance 4. Find the variance in Fahrenheit, \\(F=1.8C+32\\).",
+        "solution": "\\(\\mathrm{Var}(F)=1.8^{2}\\cdot 4=12.96\\). The 32 shifts every value equally and does not change the spread."
+      },
+      "trap": "\\(E[aX]=a\\,E[X]\\) is linear, so it is tempting to do the same for the variance."
+    },
+    {
+      "id": "L3", "title": "\\(n\\) for the mean, \\(n-1\\) for the sample variance",
+      "habits": ["h3"], "questions": ["5"],
+      "idea": "The mean divides by \\(n\\). Only the sample variance divides by \\(n-1\\), to correct for measuring spread around \\(\\bar{x}\\) instead of the true mean.",
+      "how": "Write the definition before the code, then test the code on two numbers whose answer you know.",
+      "example": {
+        "prompt": "What should a correct `mean` return for `[5]`, and what would a version dividing by \\(n-1\\) do?",
+        "solution": "It should return 5. Dividing by \\(n-1=0\\) raises `ZeroDivisionError`, which exposes the bug at once.\n\n```python\nassert mean([5]) == 5\n```"
+      },
+      "trap": "Code that runs without errors on long lists can still be wrong; tiny inputs reveal it."
+    },
+    {
+      "id": "L4", "title": "Expected value is a weighted sum",
+      "habits": [], "questions": ["4"],
+      "idea": "\\(E[X]=\\sum_k k\\,P(X=k)\\): each value counts in proportion to its probability.",
+      "how": "Read every value and its probability from the table or chart, check that the probabilities add to 1, then multiply and add.",
+      "example": {
+        "prompt": "\\(P(X=1)=0.6\\) and \\(P(X=5)=0.4\\). Find \\(E[X]\\).",
+        "solution": "\\(E[X]=1(0.6)+5(0.4)=2.6\\). It need not be a value \\(X\\) can take."
+      },
+      "trap": "Averaging the values without weights, \\(\\frac{1+5}{2}=3\\), ignores the probabilities."
+    },
+    {
+      "id": "L5", "title": "Check every formula on a tiny case",
+      "habits": ["h2", "h3"], "questions": ["3", "5"],
+      "idea": "Most errors in this quiz would show up on a case small enough to do in your head.",
+      "how": "After writing a formula or a function, plug in one or two values whose answer you already know.",
+      "example": {
+        "prompt": "Check \\(\\mathrm{Var}(2X)\\) for \\(X\\) equal to 0 or 2 with probability \\(\\frac{1}{2}\\) each.",
+        "solution": "\\(\\mathrm{Var}(X)=1\\). \\(2X\\) is 0 or 4, whose variance is 4, which equals \\(2^{2}\\cdot 1\\)."
+      },
+      "trap": "Checking only that the code runs, not that the value is right."
+    }
+  ],
+  "fixes": [
+    "Translate \"both\" and \"either\" into \\(\\cap\\) and \\(\\cup\\) before computing.",
+    "Ask whether a quantity is in original or squared units before scaling it.",
+    "Write the definition, then the code, then test it on two numbers.",
+    "Check every answer for size: a probability of \"both\" cannot exceed either one."
+  ]
+}

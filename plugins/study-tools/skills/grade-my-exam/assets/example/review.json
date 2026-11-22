@@ -1,0 +1,344 @@
+{
+  "meta": {
+    "title": "ARTH 101 Quiz 3 Review",
+    "course": "ARTH-UA 101, Introduction to Art History",
+    "subject": "art history",
+    "exam": "Quiz 3: The Early Renaissance in Florence (practice)",
+    "kind": "practice",
+    "taken": "2026-11-20",
+    "time": { "used_min": 38, "limit_min": 45 },
+    "key_source": "the instructor's answer key, with Claude's rubric for the written items",
+    "credit_rules": [
+      "Select-all items are all-or-nothing.",
+      "True/false items need a correct one-sentence justification for full credit: 1 point for the choice, 2 for the justification."
+    ],
+    "exam_mode": "open",
+    "storage_key": "arth101-quiz3-review",
+    "student_name": "",
+    "intro": "A made-up example. The student took the practice quiz on paper, typed their answers with notes, and asked for a review. Start with the patterns, then the lessons.",
+    "notes": [
+      "Question 9 was handwritten. One word in the second paragraph was hard to read; you confirmed it says **\"proportion\"**."
+    ]
+  },
+  "units": [
+    { "id": "u1", "name": "Perspective and Alberti" },
+    { "id": "u2", "name": "Sculpture and architecture" },
+    { "id": "u3", "name": "Masaccio and narrative painting" }
+  ],
+  "habits": [
+    { "id": "h1", "name": "Claims without visual evidence", "what": "The answer names a work but never says what in it supports the point." },
+    { "id": "h2", "name": "Two works of one artist or place mixed up", "what": "A detail of one work is attached to a neighbouring work by the same artist, or to the wrong building." },
+    { "id": "h3", "name": "Perspective terms swapped", "what": "Orthogonals, transversals, vanishing point and horizon line are used for one another." },
+    { "id": "h4", "name": "Incomplete select-all answers", "what": "One true option is left out because it looked less central than the others." },
+    { "id": "h5", "name": "Dates a decade or two late", "what": "Early Renaissance works are placed in the second half of the century." }
+  ],
+  "questions": [
+    {
+      "id": "1", "type": "mc", "points": 2, "unit": "u1", "habits": [],
+      "prompt": "Who is credited with the first demonstration of linear perspective, using painted panels of the Florence Baptistery around 1415 to 1420?",
+      "options": [
+        { "key": "A", "text": "Masaccio" },
+        { "key": "B", "text": "Filippo Brunelleschi" },
+        { "key": "C", "text": "Lorenzo Ghiberti" },
+        { "key": "D", "text": "Leon Battista Alberti" }
+      ],
+      "answer": { "choice": "B" }, "correct": { "choice": "B" },
+      "verdict": "right", "earned": 2, "confidence": "solid",
+      "explanation": "Brunelleschi made the demonstration with a panel of the Baptistery viewed through a hole and a mirror. Alberti wrote the method down later, in *On Painting* (1435), and Masaccio was the first painter to build a large fresco on it."
+    },
+    {
+      "id": "2", "type": "mc", "points": 2, "unit": "u3", "habits": ["h2"],
+      "prompt": "In which church is Masaccio's fresco of the *Holy Trinity* (about 1427)?",
+      "options": [
+        { "key": "A", "text": "Santa Maria Novella" },
+        { "key": "B", "text": "Santa Croce" },
+        { "key": "C", "text": "San Lorenzo" },
+        { "key": "D", "text": "Santa Maria del Carmine (the Brancacci Chapel)" }
+      ],
+      "answer": { "choice": "D" }, "correct": { "choice": "A" },
+      "verdict": "wrong", "earned": 0, "confidence": "unsure",
+      "student_note": "unsure, I remember Brancacci from lecture",
+      "explanation": "The *Holy Trinity* is on the left aisle wall of Santa Maria Novella. The Brancacci Chapel in Santa Maria del Carmine holds Masaccio's other famous work, the fresco cycle with the *Tribute Money*.",
+      "walkthrough": {
+        "think": "Each major Masaccio work has its own building. Recall the work, then its home, and do not let the more famous chapel answer for both.",
+        "steps": [
+          "Name Masaccio's two key Florentine commissions: the *Holy Trinity* and the Brancacci Chapel frescoes.",
+          "Attach each to its church: *Holy Trinity* in Santa Maria Novella; the Brancacci Chapel inside Santa Maria del Carmine.",
+          "Option D names the second pair, so it answers a different question."
+        ],
+        "answer": "A, Santa Maria Novella.",
+        "trap": "The option that names a famous Masaccio location is tempting precisely because it is real. Check that the place belongs to the work in the question."
+      }
+    },
+    {
+      "id": "3", "type": "multi", "points": 2, "unit": "u1", "habits": ["h4"],
+      "format": "Select all that apply",
+      "prompt": "Which of the following are features of one-point linear perspective as Early Renaissance painters used it? Select all that apply.",
+      "options": [
+        { "key": "A", "text": "Lines that run straight into the picture converge at a single vanishing point." },
+        { "key": "B", "text": "The vanishing point lies on the horizon line, which is set at the viewer's eye level." },
+        { "key": "C", "text": "The most important figures are painted larger than the others." },
+        { "key": "D", "text": "Objects shrink at a regular rate as they recede." }
+      ],
+      "answer": { "choice": ["A", "D"] }, "correct": { "choice": ["A", "B", "D"] },
+      "verdict": "wrong", "earned": 0, "confidence": "solid",
+      "explanation": "A, B and D all describe the system. C describes hierarchical scale, an older convention in which size shows importance, not distance. Under the all-or-nothing rule, missing B costs the whole item.",
+      "walkthrough": {
+        "think": "A select-all item is several true/false questions in one. Judge each option on its own, and do not stop once the answer looks complete.",
+        "steps": [
+          "A: the single vanishing point is the defining feature. True.",
+          "B: the vanishing point sits on the horizon, and the horizon is placed at eye level so the viewer seems to stand in the scene. True.",
+          "C: size by importance is hierarchical scale, which perspective replaces. False.",
+          "D: regular diminution with distance is what the converging lines produce. True."
+        ],
+        "answer": "A, B and D.",
+        "trap": "B sounds like a technical detail rather than a feature, so it is easy to skip. Detail is not a reason to leave a true statement out."
+      }
+    },
+    {
+      "id": "4", "type": "tf", "points": 3, "unit": "u2", "habits": ["h2"],
+      "format": "True/false with justification",
+      "prompt": "True or false, with one sentence of justification: Ghiberti's *Gates of Paradise* (the east doors of the Florence Baptistery) use the same quatrefoil frames as his 1401 competition panel.",
+      "answer": { "choice": "T", "text": "Ghiberti reused his design from the competition he won." },
+      "correct": { "choice": "F", "text": "False: the quatrefoil frames belong to the competition panel and the north doors, while the *Gates of Paradise* use ten large square panels in perspective." },
+      "verdict": "wrong", "earned": 0, "confidence": "solid",
+      "explanation": "Ghiberti made two sets of Baptistery doors. The north doors (1403 to 1424) keep the quatrefoil frames of the competition panel; the east doors (1425 to 1452) drop them for ten square fields with deep perspective settings.",
+      "walkthrough": {
+        "think": "When a statement links two works by one artist, test whether the detail really belongs to both. Most true/false traps of this kind swap a feature between neighbours.",
+        "steps": [
+          "List Ghiberti's doors in order: competition panel (1401), north doors (1403 to 1424), east doors, the *Gates of Paradise* (1425 to 1452).",
+          "Recall the frame of each: quatrefoils for the panel and the north doors; ten squares for the east doors.",
+          "The claim gives the east doors the quatrefoils, so it is false.",
+          "Write the justification as the contrast: name what each set actually uses."
+        ],
+        "answer": "False. The quatrefoils belong to the competition panel and the north doors; the *Gates of Paradise* use ten square panels.",
+        "trap": "Knowing that Ghiberti won the competition makes \"reused his design\" sound plausible. The justification must name a feature of the work, not a story about the artist."
+      }
+    },
+    {
+      "id": "5", "type": "tf", "points": 3, "unit": "u1", "habits": [],
+      "format": "True/false with justification",
+      "prompt": "True or false, with one sentence of justification: In *On Painting* (1435), Alberti compares the picture to an open window through which the subject is seen.",
+      "answer": { "choice": "T", "text": "Alberti says the painting is like an open window onto the scene." },
+      "correct": { "choice": "T", "text": "True: Alberti describes the picture surface as an open window through which the istoria (the story) is seen." },
+      "verdict": "right", "earned": 3, "confidence": "solid",
+      "explanation": "The open window is Alberti's central image for the picture plane, and it is the reason the painted space must follow perspective."
+    },
+    {
+      "id": "6", "type": "mc", "points": 2, "unit": "u2", "habits": [],
+      "prompt": "What does *contrapposto* describe?",
+      "options": [
+        { "key": "A", "text": "A standing figure with its weight on one leg, so that the hips and shoulders tilt in opposite directions" },
+        { "key": "B", "text": "The contrast of light and dark used to model a form" },
+        { "key": "C", "text": "A relief carved so shallowly that it is almost flat" },
+        { "key": "D", "text": "A figure shown from a steep angle below" }
+      ],
+      "answer": { "choice": "A" }, "correct": { "choice": "A" },
+      "verdict": "right", "earned": 2, "confidence": "guessed",
+      "student_note": "guessed, picked A because it sounded right",
+      "explanation": "Contrapposto is the weight shift of classical sculpture that Donatello revived. B is chiaroscuro, C is schiacciato (very low relief) and D is foreshortening seen from below.",
+      "walkthrough": {
+        "think": "Four Italian terms describe four different things: posture, light, relief depth and viewpoint. Tie each term to one of them.",
+        "steps": [
+          "Contrapposto (\"set against\"): the body's parts are set against one another; it describes posture.",
+          "Chiaroscuro (\"light-dark\"): modelling with light and shadow, option B.",
+          "Schiacciato (\"flattened\"): Donatello's very low relief, option C.",
+          "A view from steeply below is foreshortening, option D."
+        ],
+        "answer": "A.",
+        "trap": "All four options are real terms from the same weeks of the course, so recognising a term is not enough; match its literal meaning."
+      }
+    },
+    {
+      "id": "7", "type": "written", "points": 4, "unit": "u3", "habits": ["h1"],
+      "format": "Short answer",
+      "prompt": "In two to four sentences, explain how Masaccio's *Tribute Money* (Brancacci Chapel, about 1425) uses continuous narrative.",
+      "answer": { "text": "The fresco tells the story in more than one scene at once. Peter appears twice, once with Christ and once paying the tax collector, so we read it as a sequence. This makes the story clear." },
+      "correct": { "text": "Continuous narrative shows several moments of one story in a single setting, with the same figures repeated. In the centre the tax collector demands payment and Christ tells Peter to find the coin; at the left Peter takes the coin from the fish's mouth; at the right he pays the collector. Peter appears three times, and the shared landscape and single light source hold the episodes together as one space." },
+      "verdict": "partial", "earned": { "low": 1.5, "likely": 2, "high": 2.5 }, "confidence": "solid",
+      "explanation": "Full credit needs the definition and the three episodes in their places. The answer defines the idea but finds only two of Peter's three appearances and does not say where they are.",
+      "rubric": [
+        { "point": "Defines continuous narrative: several moments of one story in one setting", "marks": 1, "got": 1 },
+        { "point": "Names the three episodes and their positions (centre, left, right)", "marks": 2, "got": 0.5, "comment": "Two episodes, no positions." },
+        { "point": "Notes how the unified space or light ties the episodes together", "marks": 1, "got": 0.5, "comment": "\"Makes the story clear\" points at it without saying how." }
+      ],
+      "walkthrough": {
+        "think": "A short answer about a technique needs the definition plus evidence you could point to on the wall. Picture the work and walk across it.",
+        "steps": [
+          "Define the term in one clause: several moments of one story in one setting.",
+          "Walk the fresco: centre, the demand and Christ's instruction; left, Peter and the fish; right, Peter paying.",
+          "Add one formal observation: the shared landscape and the light from one direction make it a single space.",
+          "Stop at four sentences."
+        ],
+        "answer": "Definition, three placed episodes, one sentence on the unified space. See the model answer.",
+        "trap": "\"Peter appears more than once\" sounds like evidence, but a grader wants the specific episodes and where they are."
+      }
+    },
+    {
+      "id": "8", "type": "written", "points": 4, "unit": "u1", "habits": ["h3"],
+      "format": "Identification",
+      "prompt": "The diagram shows the construction lines of a painted floor. Identify (a) the drawing system, (b) the point marked V, (c) the lines marked o, and (d) one Early Renaissance work in Florence that is built on this system.",
+      "image": { "src": "img/q8-floor.png", "alt": "A tiled floor drawn in one-point perspective: lines marked o run into the picture and meet at a point V on a dashed horizon line H; lines marked t run across, closer together as they recede.", "caption": "Diagram for question 8 (drawn for this example)." },
+      "answer": { "text": "(a) Linear perspective\n\n(b) The horizon point\n\n(c) Transversals\n\n(d) Masaccio, *Holy Trinity*" },
+      "correct": { "text": "(a) One-point linear perspective.\n\n(b) The vanishing point (Alberti's centric point), which lies on the horizon line.\n\n(c) Orthogonals: lines perpendicular to the picture plane that converge at the vanishing point.\n\n(d) Masaccio, *Holy Trinity* (Santa Maria Novella); also accepted: Ghiberti's *Gates of Paradise* panels." },
+      "verdict": "partial", "earned": { "low": 2, "likely": 2, "high": 3 }, "confidence": "solid",
+      "explanation": "Parts (a) and (d) are right. The lines marked o run into the picture toward V, so they are orthogonals; transversals are the lines marked t that run across. \"Horizon point\" describes where V is but is not the term.",
+      "rubric": [
+        { "point": "(a) One-point linear perspective", "marks": 1, "got": 1 },
+        { "point": "(b) Vanishing point", "marks": 1, "got": 0, "comment": "Some instructors accept \"centric point\"; \"horizon point\" is less likely to earn it, hence the high end of 3." },
+        { "point": "(c) Orthogonals", "marks": 1, "got": 0, "comment": "Swapped with transversals." },
+        { "point": "(d) A Florentine work built on it", "marks": 1, "got": 1 }
+      ],
+      "walkthrough": {
+        "think": "Identify each label by what the line does: does it run into the picture or across it? Then use the exact term.",
+        "steps": [
+          "The whole grid shrinks toward one point: one-point linear perspective.",
+          "V is where the receding lines meet: the vanishing point. It lies on H, the horizon line.",
+          "The o lines run into depth and meet at V: orthogonals. The t lines run across, parallel to the picture plane: transversals.",
+          "Name a work: Masaccio's *Holy Trinity*."
+        ],
+        "answer": "(a) One-point linear perspective, (b) vanishing point, (c) orthogonals, (d) Masaccio, *Holy Trinity*.",
+        "trap": "*Ortho-* means at right angles to the picture plane, so orthogonals go into the picture. *Trans-* means across."
+      }
+    },
+    {
+      "id": "9", "type": "written", "points": 10, "unit": ["u1", "u2", "u3"], "habits": ["h1"],
+      "format": "Essay",
+      "prompt": "Essay (about 20 minutes). Was the Early Renaissance in Florence driven more by the revival of classical antiquity or by new ways of observing nature? Take a position and support it with at least two specific works.",
+      "answer": { "text": "I think the Early Renaissance was driven more by the revival of antiquity, because artists like Brunelleschi and Donatello went to Rome to study ancient ruins and brought those ideas back to Florence.\n\nBrunelleschi's dome shows this because it is a huge achievement that was inspired by the Pantheon. Donatello's David is also classical because it is a nude statue like the ones from ancient times. These works show proportion and harmony which were classical values.\n\nAlthough artists did look at nature, the classical ideas were more important overall, so antiquity was the main driver." },
+      "correct": { "text": "A strong answer takes a clear position and argues it through specific features of at least two works. For example: antiquity supplied the vocabulary, but observation drove the change. Donatello's bronze *David* revives the classical nude and contrapposto, yet its slack, adolescent body is closely observed rather than idealised. Masaccio's *Holy Trinity* frames its figures in a Roman coffered barrel vault, but the vault exists to demonstrate a perspective system built from optics and measurement, and the figures are lit from a single source. In both works the classical form is the occasion and the observed space and body are the innovation. The opposite thesis can earn full marks too, if it is argued from features of the works in the same way." },
+      "verdict": "partial", "earned": { "low": 5, "likely": 6, "high": 7 }, "confidence": "unsure",
+      "student_note": "ran out of time, conclusion is rushed",
+      "explanation": "The essay has a clear thesis and two relevant works, which earns the thesis and organisation marks. It loses most of the evidence and analysis marks because it never describes what in the dome or the *David* is classical, and it does not engage the other side beyond one sentence.",
+      "rubric": [
+        { "point": "Thesis: a clear, arguable position on the question", "marks": 2, "got": 2 },
+        { "point": "Evidence: specific features of at least two works", "marks": 4, "got": 2, "comment": "Works named, features missing: say what is classical (the ribs and lantern of the dome, the contrapposto and bronze nude of the *David*)." },
+        { "point": "Analysis: explains how the evidence supports the thesis and answers the other side", "marks": 3, "got": 1, "comment": "\"Proportion and harmony\" is asserted, not shown; nature is dismissed in one clause." },
+        { "point": "Organisation: introduction, body, conclusion", "marks": 1, "got": 1 }
+      ],
+      "walkthrough": {
+        "think": "An essay grade rides on evidence and analysis. A thesis with two named works is a third of the marks; each claim needs a visible feature and a sentence on why it matters.",
+        "steps": [
+          "Spend two minutes on a plan: thesis, two works, one feature of each, one counter-point.",
+          "For each work, write three sentences: the feature you can see, how it is classical or observed, and how that supports the thesis.",
+          "Take the other side seriously for two or three sentences, then answer it.",
+          "Leave three minutes for a conclusion that restates the thesis in terms of the evidence."
+        ],
+        "answer": "Keep the thesis, then rebuild the body around specific features. See the model answer for one way.",
+        "trap": "\"It is a huge achievement\" and \"it is classical\" are conclusions, not evidence. If a sentence would fit any famous work, it earns nothing."
+      }
+    },
+    {
+      "id": "10", "type": "mc", "points": 2, "unit": "u2", "habits": ["h5"],
+      "prompt": "Over which years was Brunelleschi's dome of Florence Cathedral built (not counting the lantern)?",
+      "options": [
+        { "key": "A", "text": "1401–1415" },
+        { "key": "B", "text": "1420–1436" },
+        { "key": "C", "text": "1440–1456" },
+        { "key": "D", "text": "1475–1490" }
+      ],
+      "answer": { "choice": "C" }, "correct": { "choice": "B" },
+      "verdict": "wrong", "earned": 0, "confidence": "unsure",
+      "student_note": "between B and C",
+      "explanation": "Work on the dome began in 1420 and the dome was closed in 1436, when the cathedral was consecrated. Brunelleschi died in 1446, so a construction period ending in 1456 cannot be his.",
+      "walkthrough": {
+        "think": "Use anchor dates you are sure of and rule out options that contradict them, instead of recalling the range directly.",
+        "steps": [
+          "Anchor: Brunelleschi's perspective demonstration is about 1415 to 1420, and he died in 1446.",
+          "A ends in 1415, before the dome was even commissioned in its final form. Rule it out.",
+          "C ends in 1456, ten years after his death. Rule it out; D is later still.",
+          "B, 1420 to 1436, fits between the anchors."
+        ],
+        "answer": "B, 1420 to 1436.",
+        "trap": "Options one or two decades apart all look plausible in isolation. A death date or a neighbouring event settles them in seconds."
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "L1", "title": "Evidence is what you can point to",
+      "habits": ["h1"], "questions": ["9", "7"],
+      "idea": "Graders give marks for features of the work, not for opinions about it. A claim such as \"the *David* is classical\" only counts once it names something visible: the contrapposto, the nude bronze body, the hat and boots that break the classical model.",
+      "how": "For every work you cite, write three moves: the feature (what and where), the category it belongs to (classical, observed, technical), and the link back to your argument. If a sentence would fit any famous work, replace it with one that fits only this one.",
+      "example": {
+        "prompt": "Rewrite the weak claim \"Ghiberti's *Gates of Paradise* are very realistic\" as evidence for the thesis that observation drove the Early Renaissance.",
+        "solution": "In the *Jacob and Esau* panel, Ghiberti sets the figures in a hall whose floor and arches recede to one vanishing point, and the relief grows shallower toward the back so that distant figures blur as they would to the eye. The space is measured and the depth is observed, which is the sense in which the doors are \"realistic\" and why they support the thesis."
+      },
+      "trap": "Long, confident sentences without a single visible feature. Length does not earn evidence marks."
+    },
+    {
+      "id": "L2", "title": "Give each work its place and its neighbour",
+      "habits": ["h2"], "questions": ["2", "4"],
+      "idea": "Several artists made two famous works in or near the same place, and exam options exploit exactly that. Learn each pair together, with the one feature that separates them.",
+      "how": "Keep a two-column card for every pair: work, place, date, distinguishing feature. When an option names a real place or feature, ask which member of the pair it belongs to before accepting it.",
+      "example": {
+        "prompt": "Donatello made a marble *David* (1408 to 1409) and a bronze *David* (1440s). Which one is the free-standing nude, and how would you justify it in one sentence?",
+        "solution": "The bronze. The marble *David* is clothed and was made for the cathedral, while the bronze is the first free-standing nude male statue since antiquity, shown in contrapposto with a hat and boots."
+      },
+      "trap": "Recognising the place is not the same as matching it. The most familiar option is often the neighbour."
+    },
+    {
+      "id": "L3", "title": "Name perspective lines by what they do",
+      "habits": ["h3"], "questions": ["8", "3"],
+      "idea": "The vocabulary of perspective has four terms, each tied to a direction. Orthogonals run into the picture and meet at the vanishing point; transversals run across, parallel to the picture plane; the vanishing point lies on the horizon line, which is set at the viewer's eye level.",
+      "how": "Before naming a line, ask which way it runs: into depth, or across. Then use the root of the word: *ortho-* is at right angles to the picture plane, *trans-* is across it.",
+      "example": {
+        "prompt": "In a painting of a long colonnade, the tops of the columns form a line that slopes down toward the centre of the picture. Name that line and the point where it ends.",
+        "solution": "It runs into depth, so it is an orthogonal, and it ends at the vanishing point on the horizon line."
+      },
+      "trap": "Transversals get closer together as they recede, which makes them look like the \"perspective\" lines. They are not the ones that converge."
+    },
+    {
+      "id": "L4", "title": "Treat select-all as separate true/false items",
+      "habits": ["h4"], "questions": ["3"],
+      "idea": "Under all-or-nothing credit, a select-all item is lost by one omission. Each option is its own true/false question, and a technical-sounding option is as likely to be true as a central one.",
+      "how": "Mark T or F next to every option before choosing. Count your Ts at the end; if you have only the obvious ones, reread the remaining options once more.",
+      "example": {
+        "prompt": "Which are features of Gothic cathedral architecture? A. Pointed arches. B. Flying buttresses. C. Round arches on thick walls. D. Ribbed vaults.",
+        "solution": "A: T. B: T. C: F, that is Romanesque. D: T. Answer: A, B and D."
+      },
+      "trap": "Stopping after the first two confident picks. The third true option is the one the item is testing."
+    },
+    {
+      "id": "L5", "title": "Pin dates to a few anchors",
+      "habits": ["h5"], "questions": ["10"],
+      "idea": "You do not need every date; you need a few you are sure of. Brunelleschi's perspective demonstration (about 1415 to 1420), Masaccio's death (1428), Alberti's *On Painting* (1435) and Brunelleschi's death (1446) bracket most of this unit.",
+      "how": "For a date question, place each option against the anchors and strike any that contradict them. One that ends after the artist died is out.",
+      "example": {
+        "prompt": "Could Masaccio have read Alberti's *On Painting* before painting the *Holy Trinity*?",
+        "solution": "No. Masaccio died in 1428 and *On Painting* dates from 1435. The *Holy Trinity* (about 1427) uses perspective learned from Brunelleschi, before Alberti wrote it down."
+      },
+      "trap": "Options a decade or two apart all feel plausible. Check them against a death date instead of against a feeling."
+    },
+    {
+      "id": "L6", "title": "Plan an essay before writing it",
+      "habits": ["h1"], "questions": ["9"],
+      "idea": "In a timed essay, most marks sit in evidence and analysis, and both depend on choosing features before you start. Two minutes of planning saves the rushed ending.",
+      "how": "Write a four-line plan: thesis; work 1 and its feature; work 2 and its feature; the other side and your answer. Give each body paragraph three moves: feature, meaning, link to the thesis.",
+      "example": {
+        "prompt": "Plan, in four lines, an essay on whether Donatello was more a classical or a naturalistic sculptor.",
+        "solution": "Thesis: classical in form, naturalistic in effect. Work 1: bronze *David*, classical nude in contrapposto, yet an observed adolescent body. Work 2: *Saint Mark* at Orsanmichele, contrapposto under drapery that follows the weight of the body. Other side: the classical nude is itself a revival; answer: Donatello uses it to show a real body, not an ideal."
+      },
+      "trap": "Writing until time runs out with no plan. The conclusion suffers first, then the analysis."
+    },
+    {
+      "id": "L7", "title": "A guessed answer is a weak spot",
+      "habits": [], "questions": ["6"],
+      "idea": "A correct guess earns points on this attempt only. Studio and sculpture terms (contrapposto, chiaroscuro, schiacciato, foreshortening) come back on every exam in this course.",
+      "how": "Tie each term to its literal meaning and to one work: contrapposto, \"set against\", Donatello's *David*; chiaroscuro, \"light-dark\"; schiacciato, \"flattened\", Donatello's low reliefs; foreshortening, a form seen end-on.",
+      "example": {
+        "prompt": "A relief is carved so shallowly that the background figures are only scratched into the stone. Which term fits?",
+        "solution": "Schiacciato, \"flattened\" relief, which Donatello used to suggest distance with very little depth."
+      },
+      "trap": "Picking the option that \"sounds right\" works once. Without the meaning, the next variation of the question goes the other way."
+    }
+  ],
+  "fixes": [
+    "For every work you cite, name one feature a viewer could point to.",
+    "Learn works in pairs (same artist or same place) with the one detail that separates them.",
+    "Name perspective lines by direction: into the picture is orthogonal, across is transversal.",
+    "Mark every select-all option T or F before you choose.",
+    "Check date options against anchors you know, such as a death date.",
+    "Spend the first two minutes of an essay on a four-line plan."
+  ]
+}
