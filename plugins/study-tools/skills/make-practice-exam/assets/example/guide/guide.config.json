@@ -1,0 +1,27 @@
+{
+  "_about": "Made-up example. Same keys as the study-guide skill's assets/template/guide.config.json.",
+  "guide_title": "ECON 101 Midterm 1 Practice Exam",
+  "header_kicker": "ECON 101 · Midterm 1 · Thu Oct 15, 11:00",
+  "course": "ECON 101",
+  "course_full": "ECON 101, Principles of Microeconomics",
+  "subject": "economics",
+  "exam_name": "Midterm 1",
+  "exam_format": "closed book, 50 minutes: 8 multiple choice, 2 short calculations, 2 short answers",
+  "exam_conditions": "closed book, basic calculator allowed, no formula sheet",
+  "calculator": true,
+  "exam_minutes": 50,
+  "practice_minutes": 50,
+  "unit_label": "",
+  "scope_line": "A full practice Midterm 1 on units 1 to 4, in the format of last year's exam",
+  "student_name": "",
+  "storage_key": "econ101-mt1-practice-r1",
+  "exam_hint_label": "Exam hint",
+  "skip_label": "Not tested",
+  "style": {
+    "no_em_dashes": true,
+    "paragraph_sentences": "2-3",
+    "tone": "formal, concise, direct",
+    "simplify_technical": true,
+    "prompt_extra": ""
+  }
+}
