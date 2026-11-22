@@ -1,5 +1,6 @@
 <!-- Example unit 2 of the kitchen-sink guide (made-up content). It shows a short unit that recalls
-     unit 1 in one clause instead of re-teaching it, and links back to it. -->
+     unit 1 in one clause instead of re-teaching it, and links back to it, and a code block
+     (pre.code, data-sg="code-block"): inside it write &lt; for < and &amp; for &. -->
 <section class="unit" id="ex2" data-sg="unit" data-num="2" data-title="Radiocarbon Dating" data-example="true">
   <div class="unit-head" data-sg="unit-head">
     <span class="kicker" data-sg="unit-kicker">Lecture 2</span>
@@ -20,6 +21,17 @@
       <dl class="where" data-sg="where"><dt>\(N/N_0\)</dt><dd>the carbon-14 left, as a fraction of the level in living tissue</dd></dl>
     </div>
     <div class="pit" data-sg="pitfall"><b>Watch out.</b> The ratio inside the logarithm is \(N_0/N\), which is at least 1, so the age comes out positive. Writing \(N/N_0\) gives a negative age.</div>
+    <p data-sg="text">The clock has a limited range. After about ten half-lives, roughly 57,000 years, the fraction left is \((1/2)^{10}\approx0.001\), too little carbon-14 to measure reliably, so radiocarbon dating only works for samples younger than about 50,000 years. Older samples need an isotope with a much longer half-life.</p>
+    <p data-sg="text">The age formula is one line of code. The function below checks that the fraction is a valid one before taking the logarithm, which is where a typo in the data would otherwise give a negative or impossible age.</p>
+    <pre class="code" data-sg="code-block"><code>import math
+
+def age_from_fraction(fraction_left, half_life=5730):
+    """Years since death, from the fraction N/N0 of carbon-14 left."""
+    if not 0 &lt; fraction_left &lt;= 1:
+        raise ValueError("fraction_left must be in (0, 1]")
+    return half_life / math.log(2) * math.log(1 / fraction_left)
+
+print(age_from_fraction(0.25))   # 11460.0, two half-lives</code></pre>
   </div>
   <details class="questions" id="ex2-q" data-sg="questions" open><summary>Questions <span class="questions-meta"></span></summary><div class="questions-body">
 <!--QUESTIONS-->

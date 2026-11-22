@@ -11,6 +11,7 @@ Read this before writing the first unit. The template files in `assets/template/
 6. Engine files (never edited per guide)
 7. Copy-paste snippets
 8. Markup rules that prevent rendering bugs
+9. Exam-only guide
 
 ## 1. How a guide is assembled
 
@@ -22,7 +23,7 @@ tokens.css + components.css + layout.css (+ <guide>/extra.css)    (template)
 top.html             header, contents sidebar, start page          (template, filled from config)
 units/<id>.html      one per unit, in outline order; build.py puts
   units/<id>.questions.html and units/<id>.solutions.html at the <!--QUESTIONS--> marker
-exam/exam.html       the practice exam page, same way (optional)
+exam/exam.html       the practice exam page, same way (optional; the only page of an exam-only guide, section 9)
 bottom.html          the summary page                              (template, filled from config)
 window.SG.config     the settings, for the scripts
 js/eval.js, core.js, pages.js, theme.js, ask.js, mathfield-fonts.html, mathfield.js, mathjax-config.js, MathJax
@@ -42,9 +43,10 @@ guide
 │   ├── takeaway                   the unit in 3 to 6 sentences
 │   ├── section  (numbered, h3)    section-title, section-sources, then components
 │   │   ├── subsection (optional, h4)   subsection-title, then components
-│   │   └── components             text, equation, figure, table, pitfall, worked-example, list, steps
+│   │   └── components             text, equation, figure, table, pitfall, worked-example, list, steps, code-block
 │   ├── questions                  the unit's practice questions (inserted by build.py)
-│   │   └── question               question-stem, options/option, explanation (+ its solution)
+│   │   └── question               question-stem, options/option or the written box, explanation (+ its solution:
+│   │                                  steps and answer line, or model-answer and rubric for a written item)
 │   └── confidence                 Shaky / OK / Solid
 ├── exam         (#exam, optional) exam-head, exam-instructions, exam-bar, exam-body, exam-submit
 └── summary-page (#summary)        progress table, exam score line
@@ -81,11 +83,12 @@ Every content element carries `data-sg="<tag>"`. The tag is the contract between
 | `worked-example` | `<div class="wex">` with `<span class="lbl">Example</span>` | section, subsection | "A short solved example inside the teaching", not a practice question. | 2 to 5 sentences |
 | `list` | `<ul>` | section, subsection | "Parallel short facts." Prefer prose. | 2 to 5 items |
 | `steps` | `<ol class="steps">` | section, subsection | "An algorithm or procedure in order." | 3 to 6 items |
+| `code-block` | `<pre class="code"><code>...</code></pre>` | section, subsection, question stem (in a `<div class="qt">`), model answer, solution | "Code the reader reads or traces": monospace, scrolls sideways inside the block only, prints wrapped. Never inside a `<p>`. Write `&lt;` for `<` and `&amp;` for `&` inside it (validate.py warns on a raw `<`). | lines under about 80 characters |
 | `exam-tag` | `<span class="tag exam">` + config exam_hint_label | first thing inside a text paragraph | "The instructor said or signaled this will be tested." Needs evidence. | label only |
 | `skip-tag` | `<span class="tag skip">` + config skip_label | first thing inside a text paragraph | "The instructor said this will not be tested." Keep that material to a sentence or two. | label only |
 | `questions` | `<details class="questions" id="<unit>-q" open>` with `<summary>Questions <span class="questions-meta"></span></summary>` and `<div class="questions-body"><!--QUESTIONS--></div>` | unit, after the last section | "The unit's practice questions." The engine adds the "Questions" entry to the contents. Copy it verbatim and change only the id. | |
-| `question` | `<div class="check" data-id data-type data-ans [data-tol] [data-suffix] [data-from]>` | questions file | "One practice question." See section 4 for ids and section 7 for each type. | |
-| `question-stem` | `<p class="qt">` | question | "The question as it would appear on the exam", fully self-contained: every number, definition and setup restated. | 1 to 4 sentences |
+| `question` | `<div class="check" data-id data-type [data-ans] [data-tol] [data-suffix] [data-points] [data-from] [data-topic] [data-format] [data-lines]>` | questions file | "One practice question." See the attribute table below, section 4 for ids and section 7 for each type. | |
+| `question-stem` | `<p class="qt">`, or `<div class="qt">` holding a `<p>` and a code-block when the stem shows code | question | "The question as it would appear on the exam", fully self-contained: every number, definition, passage, document or piece of code restated. | 1 to 4 sentences, plus any passage or code |
 | `options` / `option` | `<ol class="opts">` / `<li data-k="a">` | question (mc, multi) | "The choices", keys a, b, c... in order. The reader sees A, B, C. | 3 to 5 options |
 | `explanation` | `<div class="expl"><p>...</p></div>` | question | "Why the key is right", shown after a correct answer or Show answer. | 1 to 3 sentences |
 | `solution` | `<div class="sol" data-for="<question id>">` | solutions file | "The pen-and-paper worked solution", hidden until Show answer. | under a minute to read |
@@ -93,13 +96,30 @@ Every content element carries `data-sg="<tag>"`. The tag is the contract between
 | `solution-steps` | `<ol class="ws">` | solution | "The steps", each starting with a bold 1 to 4 word label. | 2 to 6 steps |
 | `solution-answer` | `<p class="sol-a"><b>Answer:</b> ...</p>` | solution | "The final answer", exactly matching the key. | |
 | `solution-why` | `<p class="sol-why">` | solution | "The transferable pattern or trap." Optional. | 1 sentence |
+| `model-answer` | `<div class="model">` with `<p>`s (and code-blocks) | solution of a written item | "The answer a top student would write on the exam", at the real length and in the real form: paragraphs for an essay, the derivation for a proof, the code for a code question. It is the key. | the real answer's length |
+| `rubric` | `<ul class="rubric">` with `<li data-marks="1">` | solution of a written item, after the model answer | "What a grader looks for": 2 to 5 points, each one thing (the claim, the key idea, a piece of evidence, the correct value), with what it is worth. The marks add up to the question's `data-points`. The engine shows "1 mark" before each point. | 2 to 5 points, a line each |
 | `confidence` | `<div class="conf" data-sec="<unit id>">` with one `<p>` | unit, last | "The Shaky / OK / Solid rating." The engine draws the buttons. | 1 sentence |
-| `exam` | `<section class="exam-page" id="exam" data-title>` | `<main>`, after the units | "The practice exam page." Its time target is `practice_minutes` in the settings, not an attribute. | |
+| `exam` | `<section class="exam-page" id="exam" data-title>` | `<main>`, after the units | "The practice exam page." Its time target is `practice_minutes` in the settings, not an attribute. In an exam-only guide it is the only content page. | |
 | `exam-head` | `<div class="exam-head">` | exam | "Kicker, title and instructions." | |
 | `exam-instructions` | `<p>` | exam-head | "Format, number of questions, conditions, what share of the real exam it covers when that is not all of it, and that nothing is graded until Submit." | 2 to 4 sentences |
 | `exam-bar` | `<div class="exam-bar">` (empty) | exam | "Timer and answered count", drawn by the engine. | |
 | `exam-body` | `<div class="exam-body" id="exam-q">` | exam | "Where the exam questions go." Holds the marker, then exam-submit. | |
 | `exam-submit` | `<div class="exam-submit">` (empty) | exam-body, last | "Submit, score and Retake", drawn by the engine. | |
+
+Question attributes:
+
+| Attribute | On | Values | What it does |
+|---|---|---|---|
+| `data-type` | every question | `mc`, `multi`, `tf`, `num`, `written` | The kind of question. `written` is answered in the reader's own words or code and self-marked (section 7). |
+| `data-ans` | mc, multi, tf, num | the key | Never on `written` (its key is the model answer and rubric). |
+| `data-tol`, `data-suffix` | num | a tolerance; a unit word | As before. |
+| `data-format` | written, optional | `code` | A monospace code box that does not wrap. No other value; leave it out for prose. |
+| `data-lines` | written, optional | 1 to 40 | Height of the box in lines (default 4, code 6); it grows as the reader types. |
+| `data-points` | any, optional | a positive number (default 1) | What the question is worth. The exam score is in points; copy the real exam's values. |
+| `data-from` | exam questions | a unit id | The unit it tests: "From Lecture 2" after Submit and the row of the score breakdown. |
+| `data-topic` | exam questions, optional | a short topic name, 2 to 5 words | The breakdown row when there is no `data-from` (required in practice in an exam-only guide). |
+
+Saved state of a written item: `rec.last` (the text), `rec.mark` (`full`, `part` or `none`, credit 1, 0.5 and 0), `rec.firstMark`, and `rec.firstCorrect`, true only when the first attempt is marked Full marks (the mark can be corrected until Try again). Unsent practice text stays in the browser (`<storage_key>-wdraft`). Claude's feedback is saved like walkthroughs: db collection `feedback`, else `<storage_key>-feedback`.
 
 Tags on the shared pages (in `top.html` and `bottom.html`, filled by build.py): `header`, `header-kicker`, `guide-title`, `meter`, `theme-switch`, `save-status`, `contents`, `start-page`, `scope-line`, `unit-cards`, `print-cover` (the PDF cover with the contents, generated by build.py), `summary-page`.
 
@@ -123,7 +143,7 @@ Classes inside tagged elements that have no tag of their own (keep them exactly 
 | Questions block | `<unit>-q` | `L6-q` |
 | Unit question | `<unit>_q<n>` | `L6_q4` |
 | Exam page / body | `exam` / `exam-q` | |
-| Exam question | `exam_q<n>`, plus `data-from="<unit>"` | `exam_q7` |
+| Exam question | `exam_q<n>`, plus `data-from="<unit>"` and/or `data-topic="<topic>"` | `exam_q7` |
 | Solution | `data-for` = the question id | `data-for="L6_q4"` |
 
 Numbers the reader sees: section `<span class="n">` = `<data-num>.<n>` (for example 6.2). Questions are numbered by the engine as `<data-num>.<n>` in their order (6.1, 6.2...), exam questions 1, 2, 3. Links: `<a href="#L6-2">6.2</a>` for a section, `<a href="#L9">Lecture 9</a>` for a unit.
@@ -149,7 +169,7 @@ Numbers the reader sees: section `<span class="n">` = `<data-num>.<n>` (for exam
 
 `js/core.js` (questions, grading, exam, progress, saving), `js/pages.js` (one page at a time, contents, cards, pager, lazy math), `js/ask.js` (Ask and Solve it for me), `js/theme.js`, `js/eval.js` (exact-answer evaluator), `js/mathfield.js` and `mathfield-fonts.html` (math answer box), `js/mathjax-config.js`, and the three CSS files. They read everything guide-specific from the tags and the settings. If a guide needs a visual tweak, put it in `<guide>/extra.css`.
 
-What the engine does by itself: numbers questions; draws options, True/False, and the math answer box; Check tells only right or wrong; Show answer reveals the key, the explanation and the worked solution; Solve it for me asks Claude for a walkthrough (counts as wrong); saves progress (Claude storage when published with the `db` capability, otherwise the browser); builds the contents with one Questions entry per unit; shows one unit per page with Previous and Next; the Ask button; the practice exam flow; the summary; Light and Dark.
+What the engine does by itself: numbers questions; draws options, True/False, the math answer box, and the text or code box of written items (with "Compare with the model answer", the model answer and rubric, the Full marks / Partly / Missed it self-mark, and Get feedback when Claude is available); Check tells only right or wrong; Show answer reveals the key, the explanation and the worked solution; Solve it for me asks Claude for a walkthrough (counts as wrong); saves progress (Claude storage when published with the `db` capability, otherwise the browser); builds the contents with one Questions entry per unit; shows one unit per page with Previous and Next; the Ask button; the practice exam flow (score in points, written answers marked after Submit, breakdown by unit or topic, weakest first); the summary; Light and Dark.
 
 ## 7. Copy-paste snippets
 
@@ -176,6 +196,36 @@ Unit questions, one per type (the full commented versions are in `assets/templat
 </div>
 ```
 
+A written short answer, a written code question in the exam, and their solutions:
+
+```html
+<div class="check" data-sg="question" data-id="L6_q5" data-type="written" data-lines="4">
+  <p class="qt" data-sg="question-stem">In two or three sentences, explain why ... ?</p>
+</div>
+<div class="check" data-sg="question" data-id="exam_q9" data-type="written" data-format="code" data-lines="8" data-from="L6" data-topic="Recursion" data-points="4">
+  <div class="qt" data-sg="question-stem">
+    <p>Complete this function so that it returns ...</p>
+    <pre class="code" data-sg="code-block"><code>def f(n):
+    ...</code></pre>
+  </div>
+</div>
+
+<div class="sol" data-sg="solution" data-for="L6_q5">
+  <div class="model" data-sg="model-answer"><p>The answer a top student would write.</p></div>
+  <ul class="rubric" data-sg="rubric">
+    <li data-marks="1">The main claim.</li>
+    <li data-marks="1">The reason or evidence that supports it.</li>
+  </ul>
+</div>
+```
+
+A written item's solution needs a model answer and at least 2 rubric points; the "Worked solution" heading (the engine shows "Model answer" when there is none), steps, answer line and explanation are optional. A code block in teaching text sits between paragraphs:
+
+```html
+<pre class="code" data-sg="code-block"><code>if 0 &lt; x &lt;= 1:
+    return math.log(1 / x)</code></pre>
+```
+
 Numeric keys (`data-ans` on `num` questions): exact when the value terminates (0.125, 24), otherwise at least 5 significant digits (0.36788). True/false keys are "T" or "F"; the one-line justification goes in the explanation and the worked solution.
 
 A figure, an equation with a derivation, a pitfall, a renamed-symbol note, a corrected-source note and the two tags are shown in place in `assets/template/unit.html`. A finished two-unit guide with an exam is in `assets/example/` (unit 1 and the exam come straight from the template files).
@@ -188,3 +238,23 @@ A figure, an equation with a derivation, a pitfall, a renamed-symbol note, a cor
 - Images: put files in `<guide>/img/`, reference them as `img/<name>.png`, keep `loading="lazy"`. build.py adds width and height; without them, contents links land in the wrong place while images load.
 - No `<style>` or `<script>` in content files. No em dashes when `style.no_em_dashes` is true (the default).
 - Keep `<!--QUESTIONS-->` exactly once per unit file and per exam file.
+- Code goes in a code-block, never in a `<p>` (a `<p>` cannot hold a `<pre>`: the browser ends the paragraph and the block lands outside it). Inside it write `&lt;` and `&amp;`; MathJax does not touch it, so `\(` in code is safe. Inline code in prose is `<code>`.
+
+## 9. Exam-only guide
+
+A guide can be only a practice exam (what the make-practice-exam skill produces): no unit pages, just the start page, the exam and the summary. Declare it in `outline.json`:
+
+```json
+{
+  "exam_only": true,
+  "units": [],
+  "exam": { "file": "exam/exam.html", "questions": "exam/exam.questions.html", "solutions": "exam/exam.solutions.html" },
+  "sources": [ { "path": "slides/week3.pdf", "kind": "slides", "units": [], "use": "exam", "note": "the lectures the exam covers" } ]
+}
+```
+
+- `units` stays empty (validate.py errors otherwise) and `exam` is required. Sources map to no unit: use `"use": "exam"` for material the questions are written from, `exam-intel` or `excluded` as usual.
+- Exam questions carry `data-topic` (validate.py warns without it) and no `data-from` (an error: there are no units). The score breakdown groups by topic, weakest first.
+- `unit_label` may be empty in `guide.config.json`; everything else is the same (`practice_minutes` sets the timer).
+- build.py keeps the `IF_EXAM_ONLY` blocks of `top.html` and `bottom.html` and drops the `IF_UNITS` blocks: the start page explains the exam and shows one card, the summary has no unit table, the header meter follows the exam, and the page opens on the exam itself.
+- `assets/example-exam-only/` is a finished one; build and test it as `build-and-publish.md` says.

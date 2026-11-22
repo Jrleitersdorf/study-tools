@@ -1,5 +1,9 @@
 # Phase 1 and 2: intake and the integrity check
 
+## Before the opening message
+
+Look for an existing course pack as `course-pack.md` says ("Before parsing anything"). If one covers this exam, say so, ask only what it lacks, and skip the parts of this phase it already answers.
+
 ## The opening message
 
 Send this when the skill starts and the user has not already uploaded everything. Adapt the wording to what they already said; keep the substance. It is a prompt to upload, not a ranking or a checklist to fill in.
@@ -11,6 +15,8 @@ Send this when the skill starts and the user has not already uploaded everything
 > Also tell me about the exam: its name and date, what it covers, the format (multiple choice, true/false, short answer, proofs, code), open or closed book, whether a calculator is allowed, and how long it is. Let me know if anything should be weighted higher or lower, or which topics you find hardest.
 >
 > What name should the tutor use when answering your questions? Optional.
+
+Merge in the exam-evidence request from `exam-format.md` section 1 (practice or past exams, the instructor's description, a graded exam of their own): one message, not two. Its section 5 covers a course with no exam evidence.
 
 If the user invoked the skill with files already attached, skip the upload request, acknowledge what arrived in one sentence, and ask only for what is missing (usually the exam details).
 
@@ -31,7 +37,7 @@ Build mode: one unit at a time (default) / parallel agents; confirmed with the o
 Uploads folder: ... (recorded as sources_dir in outline.json)
 ```
 
-Ask the practice-exam question explicitly when practice or past exams are uploaded: "Do you plan to take the practice exam yourself first? If so I won't discuss its questions or reuse them, and I'll write new questions in the same style. The lecture material it tests still goes in the guide." The answer changes phases 6 and 7.
+Ask the practice-exam question explicitly when practice or past exams are uploaded (it sets each file's mode: open, blind or off-limits, as `exam-format.md` section 4 defines them): "Do you plan to take the practice exam yourself first? If so I won't discuss its questions or reuse them, and I'll write new questions in the same style. The lecture material it tests still goes in the guide." The answer changes phases 6 and 7.
 
 The build mode is not asked here; it is offered with the outline (phase 4). Record a preference if the user volunteers one.
 

@@ -1,0 +1,27 @@
+{
+  "_about": "Exam-only example (made-up). Same keys as assets/template/guide.config.json; unit_label is not needed.",
+  "guide_title": "Example Physics Practice Quiz",
+  "header_kicker": "PHYS 100 · Quiz 1 · Fri Mar 6, 10:00",
+  "course": "PHYS 100",
+  "course_full": "PHYS 100, Introductory Physics",
+  "subject": "physics",
+  "exam_name": "Quiz 1",
+  "exam_format": "closed book, 50 minutes, multiple choice, numeric and short written answers",
+  "exam_conditions": "pen and paper, no calculator",
+  "calculator": false,
+  "exam_minutes": 50,
+  "practice_minutes": 15,
+  "unit_label": "",
+  "scope_line": "A practice quiz on radioactive decay",
+  "student_name": "",
+  "storage_key": "phys100-quiz1-practice",
+  "exam_hint_label": "Exam hint",
+  "skip_label": "Not tested",
+  "style": {
+    "no_em_dashes": true,
+    "paragraph_sentences": "2-3",
+    "tone": "formal, concise, direct",
+    "simplify_technical": true,
+    "prompt_extra": ""
+  }
+}

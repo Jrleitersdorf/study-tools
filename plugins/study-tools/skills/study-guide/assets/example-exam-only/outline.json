@@ -1,0 +1,27 @@
+{
+  "_about": "Example of an exam-only guide: no unit pages, just the practice exam (what make-practice-exam produces). Build with --allow-example.",
+  "exam_only": true,
+  "_exam_only": "true: the guide has no units. \"units\" stays [], every exam question carries data-topic instead of data-from, and the page opens on the exam.",
+  "units": [],
+  "exam": {
+    "file": "exam/exam.html",
+    "questions": "exam/exam.questions.html",
+    "solutions": "exam/exam.solutions.html"
+  },
+  "sources": [
+    {
+      "path": "slides/example01.pdf",
+      "kind": "slides",
+      "units": [],
+      "use": "exam",
+      "note": "the lectures the practice exam covers"
+    },
+    {
+      "path": "exams/example-past-quiz.pdf",
+      "kind": "practice-exam",
+      "units": [],
+      "use": "exam-intel",
+      "note": "format, points and difficulty only"
+    }
+  ]
+}
