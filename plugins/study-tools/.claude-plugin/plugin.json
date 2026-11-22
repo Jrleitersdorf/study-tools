@@ -1,7 +1,7 @@
 {
   "name": "study-tools",
   "displayName": "Study Tools",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Study tools that turn your course material into ways to learn it and prepare for exams.",
   "author": {
     "name": "Julian R Leitersdorf",
@@ -15,6 +15,8 @@
     "exam prep",
     "education",
     "practice questions",
-    "practice exam"
+    "practice exam",
+    "cheat sheet",
+    "exam grading"
   ]
 }
