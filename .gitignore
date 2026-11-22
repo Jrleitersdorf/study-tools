@@ -17,3 +17,8 @@ work/
 dist/
 test-shots/
 *.plugin
+
+# Cheat sheet build output
+build/
+build-*/
+draft-*.pdf

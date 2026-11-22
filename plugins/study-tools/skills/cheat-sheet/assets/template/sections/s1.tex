@@ -1,0 +1,105 @@
+% =====================================================================================
+%  SECTION FILE TEMPLATE                        copy to: <sheet>/sections/<section id>.tex
+%  -------------------------------------------------------------------------------------
+%  One file per section in sheet.json. build.py writes the section heading, side tab and
+%  contents entry from sheet.json, so the file starts with its first \cstopic.
+%  Every component is shown once below with MADE-UP content from different kinds of course
+%  (physics, history, art history, computer science), so you can see how each one adapts.
+%  A real topic uses only the components its content needs. Replace everything.
+%  Full reference: references/template-reference.md.
+% =====================================================================================
+
+% ---- TOPIC: number, title, where it comes from in the student's material (pages they have)
+\cstopic{1.1}{A topic title in 3 to 8 words}{L4 pp.2--9; reading ch.3}
+% \allowsplit   <- only if this topic is longer than a page or a split is agreed
+
+% ---- TAKEAWAY: first thing in every topic. What it covers, then the implications.
+\takeaway{This topic covers what the reader will find here, in one sentence. Then the two or three implications that answer most questions: what follows, when it applies, how it connects to the next topic.}
+
+% ---- PROSE: a lead-in that says what the next box is for. 2 to 3 sentences.
+A short lead-in says what the box below is for and when to use it, so the box is never a bare formula.
+
+% ---- KEY BOX with an equation (math, science, economics, CS)
+\begin{keybox}{Name of the result}
+\keyeq[What each line shows, in plain words: line 1 gives this, line 2 gives that.]{%
+y = a\,x + b \\[4pt]
+x = \frac{y - b}{a}}
+\begin{symbols}
+\(y\); \(x\) & what the symbol is, with units; the other symbol\\
+\(a\), \(b\) & slope; intercept\\
+\end{symbols}
+\means{the one-sentence meaning a student should be able to say out loud.}
+\nuance{the condition, exception or common confusion.}
+\end{keybox}
+
+% ---- KEY BOX with definitions (any subject)
+\begin{keybox}{Terms the exam uses}
+\defn{Mercantilism}{the view that a nation grows rich by exporting more than it imports and hoarding bullion.}
+\defn{Enclosure}{the fencing of common land into private holdings, mostly in 16th to 18th century England.}
+\end{keybox}
+
+% ---- FACT CARD: a work, person, event, case or specimen (humanities, law, biology)
+\begin{factcard}{A made-up painting: identify it}[figs/placeholder.pdf][0.36]
+\fact{Artist, date}{the artist, c. 1505}
+\fact{Medium}{oil on poplar panel}
+\fact{Recognize by}{the two or three visual clues that identify it on a slide}
+\fact{Significance}{why it matters for the course, in one or two lines}
+\end{factcard}
+% Without an image: \begin{factcard}{Title} \fact{..}{..} ... \end{factcard}
+
+% ---- CODE (computer science)
+\begin{codeblock}[language=Python]
+def binary_search(xs, target):
+    lo, hi = 0, len(xs) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if xs[mid] == target:
+            return mid
+        lo, hi = (mid + 1, hi) if xs[mid] < target else (lo, mid - 1)
+    return -1
+\end{codeblock}
+
+% ---- CHANGE TABLE: what happens when you change something, and why. Rows end with \\.
+\begin{changetable}
+double the sample size & standard error falls by about 30\% & it shrinks like \(\frac{1}{\sqrt{n}}\)\\
+raise the price & quantity demanded falls & the demand curve slopes down\\
+\end{changetable}
+% Other headings: \begin{changetable}[If the facts change][Fact][Outcome][Rule] ... (law)
+
+% ---- TABLE BOX: comparisons, timelines, lookups. Write the rules yourself.
+\begin{tablebox}{Compare at a glance}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}XX@{}}
+\toprule & \textbf{Option A} & \textbf{Option B}\\\midrule
+cost & low & high\\
+when to use & small inputs & large inputs\\
+\bottomrule
+\end{tablebox}
+
+% ---- FIGURE: width as a fraction of the line, and a caption that says what to notice
+\sheetfig[0.4]{figs/placeholder.pdf}{What to notice in the picture, in one sentence.}
+
+% ---- EXAMPLE: a one-line worked use of the box above
+\example{with \(a=2\), \(b=1\) and \(y=7\): \(x=\frac{7-1}{2}=3\).}
+
+% ---- WORKED EXAMPLE: formula first, then each part plugged in with a label, then the number
+\begin{worked}{Worked example: a title that says what is solved}
+\sidebyside[0.45]{%
+\small The question, restated in full.\par\medskip
+\textbf{Plan:} the approach in one line.}{%
+\small
+\begin{enumerate}[leftmargin=1.4em]
+\item Formula: \(x = \frac{y-b}{a}\).
+\item Plug in: \(y = 7\) (given), \(b = 1\) (intercept), \(a = 2\) (slope).
+\item Answer: \(x = 3\).
+\end{enumerate}}
+\end{worked}
+
+% ---- TRAP: a common mistake or a question pattern, with a bold title
+\begin{trap}{Select-all questions}
+Judge every option on its own; one missed true option usually scores zero.
+\end{trap}
+
+% ---- TRUE OR FALSE: 2 to 5 short checks; T or F, the statement, then why in a few words
+\begin{tfbox}
+\tf{T}{A statement that is true.}{Why, in a few words.}
+\tf{F}{A statement with the trap students fall for.}{What is actually true.}
+\end{tfbox}

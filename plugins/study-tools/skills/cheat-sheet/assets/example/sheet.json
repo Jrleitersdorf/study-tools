@@ -1,0 +1,17 @@
+{
+  "title": "PHYS 110 Midterm Cheat Sheet",
+  "course": "PHYS 110, Introduction to Nuclear Physics · Midterm, Thu Mar 5, 9:30",
+  "scope": "Lectures 1 to 6: radioactive decay, dating, the discovery of the nucleus, types of radiation, simulating decay",
+  "header": "PHYS 110 midterm cheat sheet",
+  "intro": "The short version: the equations, facts and diagrams most likely to be asked. Every symbol is defined under its equation, and worked examples show how to use them. Each topic points to your printed lecture notes (\\textit{L2 pp.4--9}).",
+  "paper": "letter",
+  "layout": "standard",
+  "kind": "cheat sheet",
+  "page_budget": 8,
+  "sections": [
+    {"id": "s1", "num": "1", "title": "Radioactive decay", "tab": "Decay", "summary": "The decay law, half-life, activity and radiometric dating"},
+    {"id": "s2", "num": "2", "title": "Discoveries and types of radiation", "tab": "History", "summary": "Who found what between 1896 and 1911, and how alpha, beta and gamma differ"},
+    {"id": "s3", "num": "3", "title": "Simulating decay", "tab": "Code", "summary": "The Monte Carlo model from the lab, and what each parameter does"},
+    {"id": "s4", "num": "4", "title": "Across topics: comparisons", "tab": "Compare", "summary": "Questions that need two units at once"}
+  ]
+}
