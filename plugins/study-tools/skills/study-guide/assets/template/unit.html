@@ -12,7 +12,7 @@
       takeaway              the 3 to 6 sentence summary of the whole unit
       section               numbered teaching section (h3), repeated
         subsection          optional h4 block inside a section
-          components        text, equation, figure, table, pitfall, worked-example, list, steps
+          components        text, equation, figure, table, pitfall, worked-example, list, steps, code-block
       questions             the unit's practice questions (filled by build.py)
       confidence            the Shaky / OK / Solid rating
 
@@ -186,6 +186,10 @@
     <!~~ equation card without a where list: just omit <dl class="where">. ~~>
     <!~~ figure pair: two <figure class="fig"> in a row; each still needs alt and a caption. ~~>
     <!~~ table with math in the header: <th>\(t_{1/2}\)</th> is fine. ~~>
+    <!~~ code block: monospace, scrolls sideways inside the block only. It goes between paragraphs, never
+         inside a <p>. Inside it write &lt; for < and &amp; for &; keep lines under about 80 characters.
+    <pre class="code" data-sg="code-block"><code>def activity(lam, n):
+    return lam * n</code></pre> ~~>
     <!~~ pitfall with two traps: <div class="pit" data-sg="pitfall"><b>Watch out.</b> First trap. Second trap.</div> ~~>
     <!~~ renamed symbol: when the sources use one symbol for two things, rename one everywhere in the guide and
          say so once, where the student would otherwise be confused when going back to the sources:

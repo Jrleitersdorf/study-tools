@@ -23,17 +23,24 @@
     exam-bar          leave EMPTY: the engine draws the timer and the answered count.
     exam-body         id "exam-q": build.py inserts exam/exam.questions.html here, before exam-submit.
     exam-submit       leave EMPTY: the engine draws Submit, the score and Retake.
-  Questions use the same markup as unit questions, with ids "exam_q<n>" and one extra attribute,
-  data-from="<unit-id>", naming the unit each question tests (used for the score breakdown).
+  Questions use the same markup as unit questions, with ids "exam_q<n>" and these extra attributes:
+  data-from="<unit-id>" (the unit each question tests), data-topic="<short topic name>" (used for the
+  breakdown when there is no data-from, e.g. in an exam-only guide) and data-points="<n>" (the real
+  exam's points; default 1). Written items are answered in a text box, saved in the draft, and after
+  Submit show the model answer, the rubric and a self-mark (Full marks / Partly / Missed it); the score
+  reads "Score: 14 / 20 so far; 3 written answers still to mark yourself" until they are marked.
+  The score breakdown groups by unit (data-from) or topic and lists the weakest first.
+  EXAM-ONLY GUIDE: outline.json with "units": [] and "exam_only": true holds just this page (plus the
+  start page and the summary); the page opens on the exam and every question carries data-topic.
   EVERYTHING BELOW IS A MADE-UP EXAMPLE: replace the text, keep the structure. (The example has only
-  six questions to keep the template short; a real practice exam has at least about 10.)
+  seven questions to keep the template short; a real practice exam has at least about 10.)
   ===================================================================================== -->
 <section class="exam-page" id="exam" data-sg="exam" data-title="Practice exam" data-example="true">
   <div class="exam-head" data-sg="exam-head">
     <span class="kicker">Practice exam</span>
     <h2>Practice exam</h2>
     <!-- exam-instructions: shown on screen. Format, count, conditions, share of the real exam, and that nothing is graded until Submit. -->
-    <p data-sg="exam-instructions">Six questions in the format of the real quiz: multiple choice, true or false and short numeric answers, with no calculator. They cover the two lectures in this guide, about two fifths of the quiz, so they take 20 minutes rather than the full 50. Work through them in one sitting and press Submit exam at the end; nothing is graded before that.</p>
+    <p data-sg="exam-instructions">Seven questions worth 10 points, in the format of the real quiz: multiple choice, true or false, short numeric answers and one short piece of code, with no calculator. They cover the two lectures in this guide, about two fifths of the quiz, so they take 20 minutes rather than the full 50. Work through them in one sitting and press Submit exam at the end; nothing is graded before that, and you mark the code answer yourself against its rubric.</p>
   </div>
   <div class="exam-bar" data-sg="exam-bar"></div>
   <div class="exam-body" id="exam-q" data-sg="exam-body">

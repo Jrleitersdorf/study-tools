@@ -13,19 +13,31 @@
                       multi  select all that apply (2 or more options right)
                       tf     true / false (no options: the engine draws True and False)
                       num    a numeric answer typed by the reader (exact forms like 3/4 or e^-1 accepted)
+                      written  an answer in the reader's own words or code (short answer, essay,
+                             derivation, proof, identification, code): no data-ans, no options. Its key
+                             is the model answer and rubric in the solutions file. The reader compares,
+                             then marks it Full marks / Partly / Missed it (credit 1, 0.5, 0).
     data-ans          mc: the option key ("b"); multi: keys joined by commas ("a,c,d");
                       tf: "T" or "F"; num: the value as a decimal, EXACT when it terminates (0.125, 24,
                       11460), otherwise at least 5 significant digits (0.36788 for e^-1, not 0.37 or
                       0.3679) so rounding in the feedback matches the worked solution.
     data-tol          num only: the accepted absolute error (usually 0.001 to 0.01 of the scale).
     data-suffix       num only, optional: a unit word shown after the box ("years", "points").
+    data-format       written only, optional: "code" for a monospace code box (no other value).
+    data-lines        written only, optional: the box height in lines (default 4, code 6). It grows as
+                      the reader types. Size it to the expected answer: 3 for a definition, 10 for an essay.
+    data-points       optional: what the question is worth (default 1). Used by the practice exam score.
     question-stem     <p class="qt">: FULLY SELF-CONTAINED. Restate every number, definition and setup the
                       reader needs, as the question would appear on the exam. Never "as in the slides",
-                      never "from the example above". Inline math \( \).
+                      never "from the example above". Inline math \( \). A stem that shows code uses
+                      <div class="qt" data-sg="question-stem"> holding a <p> and a code block
+                      (<pre class="code" data-sg="code-block"><code>...</code></pre>), because a <p>
+                      cannot hold a <pre>. Inside code write &lt; for < and &amp; for &.
     options/option    <ol class="opts"><li data-k="a">...: 3 to 5 options, keys a, b, c... in order. Each
                       wrong option is a plausible mistake, not filler. No "all of the above".
     explanation       <div class="expl"><p>...</p></div>: 1 to 3 sentences shown after a CORRECT answer
                       (wrong answers see it only after Show answer). Say why the key is right.
+                      Optional for written items (their model answer does this job).
 
   EVERYTHING BELOW IS A MADE-UP EXAMPLE (unit "ex1", radioactive decay): replace it.
   ===================================================================================== -->
@@ -71,5 +83,19 @@
 <div class="check" data-sg="question" data-id="ex1_q5" data-type="num" data-ans="24" data-tol="0.01" data-suffix="days">
   <p class="qt" data-sg="question-stem">An isotope has a half-life of 8 days. How long until 1/8 of a sample remains?</p>
   <div class="expl" data-sg="explanation"><p>\(1/8=(1/2)^3\): three half-lives, 24 days.</p></div>
+</div>
+-->
+
+<!-- EXAMPLE written: a short answer; the model answer and rubric go in the solutions file -->
+<!--
+<div class="check" data-sg="question" data-id="ex1_q6" data-type="written" data-lines="3">
+  <p class="qt" data-sg="question-stem">In one or two sentences, explain why the activity of a sample falls with the same half-life as the number of nuclei.</p>
+</div>
+-->
+
+<!-- EXAMPLE written code: data-format="code" gives a monospace box; data-points is optional -->
+<!--
+<div class="check" data-sg="question" data-id="ex1_q7" data-type="written" data-format="code" data-lines="5" data-points="2">
+  <p class="qt" data-sg="question-stem">Write a Python function half_life(lam) that returns the half-life of an isotope with decay constant lam.</p>
 </div>
 -->

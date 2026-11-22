@@ -13,6 +13,9 @@ Reads <guide_dir>/guide.config.json and <guide_dir>/outline.json, validates ever
 <guide_dir>/img/ and are referenced as img/<name>; publish them next to the page, or run
 make_offline.py for a single file with the images embedded.
 
+An exam-only guide (outline.json "exam_only": true, "units": []) builds just the start page, the
+practice exam and the summary; the page opens on the exam.
+
 Template files come from ../assets/template/. A guide can override head.html, top.html or
 bottom.html by placing its own copy in <guide_dir>/, and can add <guide_dir>/extra.css.
 """
@@ -39,8 +42,16 @@ def strip_comments(s):
     return re.sub(r'<!--(?!QUESTIONS-->).*?-->', '', s, flags=re.S)
 
 
-def if_exam(s, has_exam):
-    return re.sub(r'<!--IF_EXAM-->(.*?)<!--END_IF_EXAM-->', (lambda m: m.group(1)) if has_exam else '', s, flags=re.S)
+def if_block(s, name, keep):
+    return re.sub(r'<!--IF_%s-->(.*?)<!--END_IF_%s-->' % (name, name), (lambda m: m.group(1)) if keep else '', s, flags=re.S)
+
+
+def if_exam(s, has_exam, has_units=True):
+    """Keep or drop the conditional blocks of top.html and bottom.html: IF_EXAM (the guide has a
+    practice exam), IF_UNITS (it has unit pages), IF_EXAM_ONLY (an exam-only guide: no units)."""
+    s = if_block(s, 'EXAM_ONLY', has_exam and not has_units)
+    s = if_block(s, 'UNITS', has_units)
+    return if_block(s, 'EXAM', has_exam)
 
 
 def fill(s, values, where):
@@ -144,12 +155,13 @@ def main(argv):
     if os.path.exists(os.path.join(guide, 'extra.css')):
         css.append(read(os.path.join(guide, 'extra.css')))
     parts.append('<style>\n' + '\n'.join(css) + '</style>')
-    parts.append(fill(strip_comments(if_exam(read(pick(guide, 'top.html')), bool(exam))), values, 'top.html').strip())
+    has_units = bool(outline['units'])
+    parts.append(fill(strip_comments(if_exam(read(pick(guide, 'top.html')), bool(exam), has_units)), values, 'top.html').strip())
     for u in outline['units']:
         parts.append(page(guide, u, u['id']))
     if exam:
         parts.append(page(guide, exam, 'exam'))
-    parts.append(fill(strip_comments(if_exam(read(pick(guide, 'bottom.html')), bool(exam))), values, 'bottom.html').strip())
+    parts.append(fill(strip_comments(if_exam(read(pick(guide, 'bottom.html')), bool(exam), has_units)), values, 'bottom.html').strip())
 
     runtime = {k: v for k, v in cfg.items() if not k.startswith('_')}
     if isinstance(runtime.get('style'), dict):

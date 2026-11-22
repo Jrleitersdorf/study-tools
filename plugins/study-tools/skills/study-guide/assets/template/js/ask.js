@@ -4,12 +4,18 @@
    (or under a unit's Questions block, with an optional question number), answered by Claude with
    claude.use('sample'), shown at the bottom of the section, and can take follow-ups.
    Solve it for me: on a practice question, Claude writes a pen-and-paper walkthrough on demand.
-   It counts the question as wrong (unit questions), appears only when ready, and is cached.
-   Storage: db collections "questions" and "walkthroughs" when the artifact has the db capability,
-   otherwise localStorage (<storage_key>-questions, <storage_key>-walk).
+   It counts the question as wrong (unit questions; Missed for written items), appears only when ready,
+   and is cached. Its shape follows the kind of question (computation, code, conceptual choice,
+   identification or passage, essay or short answer).
+   Get feedback: on a written item that has been compared (or submitted, in the exam), Claude reads the
+   student's text against the model answer and rubric and suggests a mark, labeled as advice.
+   Storage: db collections "questions", "walkthroughs" and "feedback" when the artifact has the db
+   capability, otherwise localStorage (<storage_key>-questions, <storage_key>-walk, <storage_key>-feedback).
    Gotchas: sample() messages must alternate user/assistant and end on a user turn; section text is
-   captured before MathJax runs so the prompt contains TeX, not SVG; answers are typeset only after
-   they are inserted into the page. Without the sample capability both buttons hide themselves. */
+   captured before MathJax runs so the prompt contains TeX, not SVG (code blocks keep their line breaks,
+   in fences); answers are typeset only after they are inserted into the page. Without the sample
+   capability Solve it for me and Get feedback hide themselves. core.js calls window.sgWrittenChanged(id)
+   whenever a written item is shown, marked or reset. */
 (function () {
   'use strict';
   var CFG = (window.SG && window.SG.config) || {};
@@ -21,6 +27,21 @@
 
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function clean(t) { return String(t).replace(/\s+/g, ' ').trim(); }
+  /* code blocks (<pre>) keep their line breaks: they are swapped for markers, the rest is cleaned, then
+     each marker becomes a fenced block */
+  function pullCode(c) {
+    var codes = [];
+    Array.prototype.forEach.call(c.querySelectorAll('pre'), function (pr) { codes.push(pr.textContent.replace(/\s+$/, '')); pr.replaceWith(document.createTextNode(' \u0001' + (codes.length - 1) + '\u0001 ')); });
+    return codes;
+  }
+  function unfence(s, codes) { return s.replace(/ ?\u0001(\d+)\u0001 ?/g, function (m, i) { return '\n```\n' + codes[+i] + '\n```\n'; }).replace(/^\n+|\n+$/g, ''); }
+  function txt(el, drop) {
+    if (!el) return '';
+    var c = el.cloneNode(true);
+    if (drop) Array.prototype.forEach.call(c.querySelectorAll(drop), function (x) { x.remove(); });
+    var codes = pullCode(c);
+    return unfence(clean(c.textContent), codes);
+  }
   function uname(lec) { return window.sgUnitName ? window.sgUnitName(lec.id) : ((lec.dataset.label || UNIT_WORD) + ' ' + (lec.dataset.num || '')).trim(); }
   function isExam(lec) { return lec && lec.dataset.sg === 'exam'; }
 
@@ -47,8 +68,9 @@
       var t = h ? clean(h.textContent).replace(n, '').trim() : it.id;
       var c = it.cloneNode(true);
       Array.prototype.forEach.call(c.querySelectorAll('img'), function (im) { im.replaceWith(document.createTextNode('[Figure: ' + (im.getAttribute('alt') || '') + '] ')); });
+      var codes = pullCode(c);
       Array.prototype.forEach.call(c.querySelectorAll('h4, p, li, dt, dd, tr, figcaption, .eq-name'), function (el) { el.appendChild(document.createTextNode('\n')); });
-      CTX[it.id] = { lec: lec.id, lecTitle: title, n: n, title: t, text: c.textContent.replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim(), takeaway: takeText, el: it, lecEl: lec };
+      CTX[it.id] = { lec: lec.id, lecTitle: title, n: n, title: t, text: unfence(c.textContent.replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim(), codes), takeaway: takeText, el: it, lecEl: lec };
       ORDER.push(it.id);
     });
     var cy = isExam(lec) ? (lec.querySelector('[data-sg="exam-body"]') || lec) : lec.querySelector('details[data-sg="questions"]');
@@ -58,14 +80,15 @@
       ORDER.push(cy.id);
       Array.prototype.forEach.call(cy.querySelectorAll('.check'), function (ch) {
         var qn = ch.querySelector('.qn'), qt = ch.querySelector('.qt');
-        var stem = qt ? qt.cloneNode(true) : null;
-        if (stem) Array.prototype.forEach.call(stem.querySelectorAll('.tag'), function (t) { t.remove(); });
         var opts = Array.prototype.map.call(ch.querySelectorAll('.opt'), function (o) {
           var inp = o.querySelector('input'), k = o.querySelector('.k'), t = o.querySelector('.t');
-          return { v: inp ? inp.value : '', letter: k ? k.textContent : '', text: t ? clean(t.textContent) : '' };
+          return { v: inp ? inp.value : '', letter: k ? k.textContent : '', text: t ? txt(t) : '' };
         });
         var ex = ch.querySelector('.expl'), so = ch.querySelector('.sol');
-        CHECKS[ch.dataset.id] = { num: qn ? qn.textContent.trim() : '', lec: lec.id, exam: isExam(lec), type: ch.dataset.type, stem: stem ? clean(stem.textContent) : '', opts: opts, ans: ch.dataset.ans, tol: ch.dataset.tol || '', expl: ex ? clean(ex.textContent) : '', sol: so ? clean(so.textContent) : '', el: ch };
+        var mo = so ? so.querySelector('[data-sg="model-answer"]') : null;
+        var rub = so ? Array.prototype.map.call(so.querySelectorAll('[data-sg="rubric"] > li'), function (li) { return { t: txt(li, '.mk'), marks: li.dataset.marks || '' }; }) : [];
+        CHECKS[ch.dataset.id] = { id: ch.dataset.id, num: qn ? qn.textContent.trim() : '', lec: lec.id, exam: isExam(lec), type: ch.dataset.type, format: ch.dataset.format || '', points: ch.dataset.points || '', topic: ch.dataset.topic || '',
+          stem: txt(qt, '.tag'), opts: opts, ans: ch.dataset.ans || '', tol: ch.dataset.tol || '', expl: ex ? txt(ex) : '', sol: so ? txt(so, '.mk, .sol-h') : '', model: mo ? txt(mo) : '', rubric: rub, el: ch };
       });
     }
   });
@@ -87,14 +110,32 @@
     return null;
   }
   function examOpen() { return !!(window.sgExam && !window.sgExam.state().submittedAt); }
+  function writtenText(c) { var ta = c.el.querySelector('textarea.wtext'); return ta ? ta.value.replace(/\s+$/, '') : ''; }
+  function quoteText(w) { return '"""\n' + (w.length > 4000 ? w.slice(0, 4000) + '\n[...]' : w) + '\n"""'; }
   function checkState(c) {
     var el = c.el, res = el.dataset.res || '', chosen = '';
+    if (c.type === 'written') {
+      var w = writtenText(c);
+      if (!res) return w.trim() ? 'They have written this but not ' + (c.exam ? 'submitted it' : 'compared it with the model answer') + ' yet:\n' + quoteText(w) : 'They have not answered it yet.';
+      if (!w.trim()) return 'They did not write an answer; it counts as missed.';
+      return 'They wrote:\n' + quoteText(w) + '\n' + (res === 'pending' ? 'They have seen the model answer and rubric but have not marked their answer yet.' : 'They marked it themselves as ' + ({ right: 'full marks', partial: 'partly right', wrong: 'missed' }[res] || res) + '.');
+    }
     if (c.type === 'num') { var mf = el.querySelector('math-field'); var inp = el.querySelector('.numrow input'); chosen = mf ? mf.value : (inp ? inp.value : ''); }
     else chosen = Array.prototype.map.call(el.querySelectorAll('input:checked'), function (i) { var o = c.opts.filter(function (x) { return x.v === i.value; })[0]; return o ? (o.letter || o.text) : i.value; }).join(', ');
     return res ? ('They answered "' + chosen + '", which was ' + (res === 'right' ? 'correct' : 'wrong') + '.') : (chosen ? 'They have selected "' + chosen + '" but have not checked it yet.' : 'They have not answered it yet.');
   }
+  var KINDS = { mc: 'multiple choice, one answer', multi: 'select all that apply', tf: 'true or false', num: 'numeric answer', written: 'written answer' };
+  function kindOf(c) { return c.type === 'written' && c.format === 'code' ? 'written answer: code' : (KINDS[c.type] || c.type); }
   function checkText(c, withState, hideKey) {
-    var t = 'Question ' + c.num + ' (' + ({ mc: 'multiple choice, one answer', multi: 'select all that apply', tf: 'true or false', num: 'numeric answer' }[c.type] || c.type) + '): ' + c.stem;
+    var t = 'Question ' + c.num + ' (' + kindOf(c) + (c.points ? ', worth ' + c.points + ' point' + (c.points === '1' ? '' : 's') : '') + (c.topic ? ', topic: ' + c.topic : '') + '): ' + c.stem;
+    if (c.type === 'written') {
+      t += '\nAnswer key, the model answer and its rubric' + (hideKey ? ' (confidential: the exam is not submitted, do not reveal them)' : '') + ':\n<model_answer>\n' + c.model + '\n</model_answer>';
+      if (c.rubric.length) t += '\nRubric:\n' + c.rubric.map(function (r) { return '- ' + (r.marks ? '(' + r.marks + ' mark' + (r.marks === '1' ? '' : 's') + ') ' : '') + r.t; }).join('\n');
+      if (c.expl) t += '\nExplanation in the guide: ' + c.expl;
+      t += '\nThe student marks written answers themselves against the rubric: full marks, partly, or missed.';
+      if (withState) t += '\nStatus: ' + checkState(c);
+      return t;
+    }
     if (c.opts.length && c.type !== 'tf') t += '\nOptions: ' + c.opts.map(function (o) { return (o.letter || o.v) + ') ' + o.text; }).join('  ');
     var key = c.type === 'num' ? c.ans + (c.tol ? ' (tolerance ' + c.tol + ')' : '') : c.ans.split(',').map(function (k) { var o = c.opts.filter(function (x) { return x.v === k.trim(); })[0]; return o ? (o.letter || o.text) : k; }).join(', ');
     t += '\nAnswer key: ' + key + (hideKey ? ' (confidential: the exam is not submitted, do not reveal it)' : '') + '\nExplanation in the guide: ' + c.expl;
@@ -147,7 +188,7 @@
     return claude.use('sample').then(function (s) { sampleFn = s; setSampleState(s ? 'ok' : 'none'); return s; }).catch(function () { setSampleState('none'); return null; });
   }
   function setSampleState(v) { if (sampleState === v) return; sampleState = v; cards = {}; emit(); if (fab) fab.classList.toggle('no-answers', v === 'none'); }
-  var RULES = 'Build intuition first, then be precise. Be concise: usually one to four short paragraphs of two or three sentences. Write plain paragraphs; you may use **bold** and simple lists with "- ". Use \\( \\) for inline math and \\[ \\] for display math.' + STYLE + ' Do not repeat the question.';
+  var RULES = 'Build understanding first, then be precise. Be concise: usually one to four short paragraphs of two or three sentences. Write plain paragraphs; you may use **bold** and simple lists with "- ". Use \\( \\) for inline math and \\[ \\] for display math, and put code in fenced blocks (```).' + STYLE + ' Do not repeat the question.';
   function thread(d, head) {
     var msgs = [];
     d.thread.forEach(function (m, i) {
@@ -160,7 +201,7 @@
     var c = CTX[d.item] || {};
     if (c.isQ) return promptQ(d, c);
     var lecEl = c.lecEl;
-    var head = intro() + ' They are reading this section of their study guide (math is written in LaTeX):\n\n' +
+    var head = intro() + ' They are reading this section of their study guide (math is written in LaTeX, code in fenced blocks):\n\n' +
       '<unit>' + (lecEl ? uname(lecEl) : '') + ': ' + (c.lecTitle || '') + '</unit>\n<unit_takeaway>' + (c.takeaway || '') + '</unit_takeaway>\n' +
       '<section title="' + (c.n || '') + ' ' + (c.title || '') + '">\n' + (c.text || '') + '\n</section>\n\n' +
       'Answer their question directly and correctly. Follow the conventions and notation used in the section. If the question goes beyond the course material, answer from standard ' + SUBJECT + ' knowledge and say in one clause that it goes beyond the course. ' + RULES + '\n\nQuestion: ';
@@ -172,9 +213,9 @@
     var ctx = one ? checkText(one, true, lock) : Object.keys(CHECKS).filter(function (id) { return CHECKS[id].lec === c.lec; }).map(function (id) { return checkText(CHECKS[id], true, lock); }).join('\n\n');
     var where = c.exam ? 'is taking the practice exam' + (lock ? ' and has not submitted it yet' : ' and has submitted it') : 'is working through the practice questions for ' + uname(c.lecEl) + ' (' + c.lecTitle + '). Unit takeaway: ' + c.takeaway;
     var head = intro() + ' They ' + where + '\n\n' +
-      (one ? 'Their question is about this practice question:\n' : 'Their question may refer to one of these practice questions (math is in LaTeX):\n') + '<practice_questions>\n' + ctx + '\n</practice_questions>\n\n' +
-      (lock ? 'The exam is still in progress: do not reveal or confirm any answer, and do not say whether a selected option is right. Clarify what a question means, recall the relevant idea, or give a small hint. ' :
-        'Answer directly and correctly. If they have not answered the practice question yet and want help, guide their reasoning first and reveal the final answer only if they ask for it or have already answered. If they answered it wrong, explain where the reasoning likely went off and why the key is right. ') +
+      (one ? 'Their question is about this practice question:\n' : 'Their question may refer to one of these practice questions (math is in LaTeX, code in fenced blocks):\n') + '<practice_questions>\n' + ctx + '\n</practice_questions>\n\n' +
+      (lock ? 'The exam is still in progress: do not reveal or confirm any answer, do not say whether a selected option or a written answer is right, and do not reveal a model answer or rubric. Clarify what a question means, recall the relevant idea, or give a small hint. ' :
+        'Answer directly and correctly. If they have not answered the practice question yet and want help, guide their reasoning first and reveal the final answer only if they ask for it or have already answered. If they answered it wrong, explain where the reasoning likely went off and why the key is right. For a written question the model answer and rubric are the key and the student sets their own mark; if they ask how their answer would score, go through the rubric points and suggest a mark as advice. ') +
       RULES + '\n\nTheir question: ';
     return thread(d, head);
   }
@@ -209,9 +250,11 @@
 
   /* ---------- rendering: questions sit at the bottom of their section ---------- */
   function md(t) {
-    var out = [], list = null, ltag = 'ul';
+    var out = [], list = null, ltag = 'ul', fence = null;
     function flush() { if (list) { out.push('<' + ltag + '>' + list.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + ltag + '>'); list = null; } }
     String(t).split(/\n/).forEach(function (line) {
+      if (fence) { if (/^\s*```/.test(line)) { out.push({ code: fence.join('\n') }); fence = null; } else fence.push(line.replace(/\s+$/, '')); return; }
+      if (/^\s*```/.test(line)) { flush(); fence = []; return; }
       var l = line.replace(/\s+$/, '');
       var m = /^\s*([-*]|\d+[.)])\s+(.*)$/.exec(l);
       if (m) { var tg = /\d/.test(m[1]) ? 'ol' : 'ul'; if (list && tg !== ltag) flush(); if (!list) { list = []; ltag = tg; } list.push(m[2]); return; }
@@ -220,17 +263,20 @@
       if (!l.trim()) { out.push('\u0000'); return; }
       out.push(l);
     });
+    if (fence) out.push({ code: fence.join('\n') });
     flush();
     var html = '', para = [];
+    function endPara() { if (para.length) { html += '<p>' + inline(para.join(' ')) + '</p>'; para = []; } }
     out.forEach(function (x) {
-      if (x === '\u0000') { if (para.length) { html += '<p>' + inline(para.join(' ')) + '</p>'; para = []; } }
-      else if (x.indexOf('<ul>') === 0 || x.indexOf('<ol>') === 0) { if (para.length) { html += '<p>' + inline(para.join(' ')) + '</p>'; para = []; } html += x; }
+      if (typeof x === 'object') { endPara(); html += '<pre class="code"><code>' + esc(x.code.replace(/^\n+|\n+$/g, '')) + '</code></pre>'; }
+      else if (x === '\u0000') endPara();
+      else if (x.indexOf('<ul>') === 0 || x.indexOf('<ol>') === 0) { endPara(); html += x; }
       else para.push(x);
     });
-    if (para.length) html += '<p>' + inline(para.join(' ')) + '</p>';
+    endPara();
     return html;
   }
-  function inline(s) { var o = esc(s).replace(/^#{1,4}\s+/, '').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>'); return CFG.style && CFG.style.no_em_dashes === false ? o : o.replace(/\u2014/g, ', '); }
+  function inline(s) { var o = esc(s).replace(/^#{1,4}\s+/, '').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>'); return CFG.style && CFG.style.no_em_dashes === false ? o : o.replace(/\u2014/g, ', '); }
   var pendingTex = [];
   function typeset(el) {
     if (window.sgMathReady && window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(function () { });
@@ -533,19 +579,112 @@
     typeset(wb);
   }
   function walkPrompt(c) {
-    var lecEl = c.el.closest('section[data-sg="unit"], section[data-sg="exam"]'), take = lecEl ? lecEl.querySelector('[data-sg="takeaway"]') : null;
-    var tl = take && take.querySelector('.lbl');
+    var lecEl = c.el.closest('section[data-sg="unit"], section[data-sg="exam"]');
     var from = c.el.dataset.from ? document.getElementById(c.el.dataset.from) : null;
-    var unitEl = from || lecEl;
+    var unitEl = from || lecEl, take = unitEl ? unitEl.querySelector('[data-sg="takeaway"]') : null;
+    var tl = take && take.querySelector('.lbl');
     return intro() + ' Conditions: ' + (CFG.exam_conditions || CALC) + '. They do not know how to approach the practice question below and want you to solve it for them.\n\n' +
-      '<unit>' + (unitEl && !isExam(unitEl) ? uname(unitEl) + ': ' + unitEl.dataset.title : (lecEl ? lecEl.dataset.title || '' : '')) + '</unit>\n<unit_takeaway>' + (take ? clean(take.textContent.replace(tl ? tl.textContent : '', '')) : '') + '</unit_takeaway>\n' +
-      '<question>\n' + checkText(c, false) + (c.sol ? '\nReference worked solution (correct, for your accuracy): ' + c.sol : '') + '\n</question>\n\n' +
-      'Write the answer in this shape:\n' +
-      '1. Two to four sentences on what the question is really asking and the idea it tests, in plain words.\n' +
-      '2. Then solve it the way a student would on paper: a numbered list of steps. Pull the givens out of the question in notation, write the formula or principle, substitute, and show the algebra line by line. For numbers, keep exact forms' + (CFG.calculator ? ' and evaluate at the end' : ' and approximate by hand at the end') + '. For multiple choice or true/false, reason through the options briefly.\n' +
-      '3. Finish with a line starting **Answer:** and one short line on how to recognize this kind of question next time.\n' +
-      'Be concise: no long paragraphs. Use \\( \\) for inline math and \\[ \\] for display math on their own lines.' + STYLE + ' Your answer must agree with the answer key.';
+      '<unit>' + (unitEl && !isExam(unitEl) ? uname(unitEl) + ': ' + unitEl.dataset.title : (lecEl ? lecEl.dataset.title || '' : '')) + '</unit>\n<unit_takeaway>' + takeawayOf(unitEl, take, tl) + '</unit_takeaway>\n' +
+      '<question>\n' + checkText(c, false) + (c.sol && c.type !== 'written' ? '\nReference worked solution (correct, for your accuracy): ' + c.sol : '') + '\n</question>\n\n' +
+      walkShape(c);
   }
+  /* the takeaway as captured before MathJax ran (TeX, not rendered math), else the page text */
+  function takeawayOf(unitEl, take, tl) {
+    if (!unitEl) return '';
+    for (var k in CTX) if (CTX[k].lec === unitEl.id && CTX[k].takeaway) return CTX[k].takeaway;
+    return take ? clean(take.textContent.replace(tl ? tl.textContent : '', '')) : '';
+  }
+  /* the walkthrough's shape follows the kind of question, so it fits any subject */
+  var SHAPES = {
+    calc: ['computation or derivation', 'list the givens (in the notation the subject uses), name the principle or formula that connects them, work the steps line by line, and end on the answer. Keep exact forms' + (CFG.calculator ? ' and evaluate at the end' : ' and approximate by hand at the end')],
+    code: ['code', 'say what the code must do (inputs, output, edge cases), give a short plan, write the code in a fenced block, then check it by hand on one small example'],
+    concept: ['conceptual multiple choice or true/false', 'name the idea the question tests, then judge each option (or the statement) in one sentence: why it is right or why it is a tempting mistake. If an option needs a value worked out, work it out first'],
+    ident: ['identification or passage', 'point out the clues in the stem (the details that give it away), make the identification, then explain its significance'],
+    essay: ['essay or short answer', 'say what the prompt actually asks (every part of it), state a thesis or main claim, gather the evidence that supports it, then write the answer at the real length expected on the exam']
+  };
+  function shapeOf(c) { return c.type === 'num' ? 'calc' : c.type === 'written' ? (c.format === 'code' ? 'code' : 'essay') : 'concept'; }
+  function walkShape(c) {
+    var k = shapeOf(c), w = c.type === 'written';
+    var menu = ['calc', 'code', 'concept', 'ident', 'essay'].map(function (s) { return '- ' + SHAPES[s][0].charAt(0).toUpperCase() + SHAPES[s][0].slice(1) + ': ' + SHAPES[s][1] + '.'; }).join('\n');
+    return 'Match the walkthrough to the kind of question. The shapes:\n' + menu + '\n' +
+      'This is ' + ({ mc: 'a multiple-choice question', multi: 'a select-all question', tf: 'a true/false question', num: 'a numeric question' }[c.type] || (c.format === 'code' ? 'a code-writing question' : 'a written question')) + ', so the ' + SHAPES[k][0] + ' shape most likely fits. Use another shape from the list only when the question is clearly of that kind (for example a derivation or a proof asked as a written answer, a passage to identify, or a multiple-choice question that needs a computation).\n\n' +
+      'Write it like this:\n' +
+      '1. One to three sentences, in plain words, on what the question is really asking and the idea it tests.\n' +
+      (w ? '2. A short plan: two to four "- " bullet points.\n' +
+        '3. A line reading **Model answer:**, then the answer the way a top student would write it on the exam, in the form the exam expects' + (c.format === 'code' ? ' (the code in a fenced block, then one line on how you checked it)' : ' (prose at the real length for an essay or short answer; numbered steps for a derivation or proof)') + '.\n' +
+        '4. One short line on what a grader looks for in this kind of question.\n' :
+        '2. The walkthrough in that shape, as a numbered list of short steps.\n' +
+        '3. A line starting **Answer:**, then one short line on how to recognize this kind of question next time.\n') +
+      'Be concise: no long paragraphs' + (w ? ', except that a model essay or short answer has its real length' : '') + '. Use \\( \\) for inline math and \\[ \\] for display math on their own lines, and put code in fenced blocks (```).' + STYLE + ' ' +
+      (w ? 'Your model answer must agree with the answer key (the model answer in the guide) and earn every rubric point.' : 'Your answer must agree with the answer key.');
+  }
+
+  /* ---------- "Get feedback" on a written answer: advice against the model answer and rubric ---------- */
+  var LS_F = KEY + '-feedback', feeds = {}, fcoll = null, feeding = {}, ferr = {}, fbOff = false;
+  try { feeds = JSON.parse(localStorage.getItem(LS_F) || '{}') || {}; } catch (e) { feeds = {}; }
+  function saveFeedsLocal() { try { localStorage.setItem(LS_F, JSON.stringify(feeds)); } catch (e) { } }
+  var NOTE = 'Claude’s feedback is advice; you set the mark.';
+  function feedbackPrompt(c, text) {
+    var marks = c.rubric.reduce(function (a, r) { var v = parseFloat(r.marks); return isNaN(v) ? a : a + v; }, 0);
+    return intro() + ' They answered the written practice question below and want feedback before they mark it themselves against the rubric.\n\n' +
+      '<question>\n' + checkText(c, false) + '\n</question>\n\n<student_answer>\n' + text + '\n</student_answer>\n\n' +
+      'Judge the answer only against the model answer and the rubric. Accept different wording, a different order or a different correct approach when it makes the same point' + (c.format === 'code' ? '; for code, accept any correct solution that does what the rubric requires, and name each bug by its line' : '') + '. Give credit only for what the answer actually says: a point it only gestures at is partly met at best, and when you hesitate between two marks, suggest the lower one.\n\n' +
+      'Write the feedback in this shape:\n' +
+      '**What your answer gets right:** one to three sentences.\n' +
+      '**Against the rubric:** a "- " list with one line per rubric point: met, partly met or missing, and what is missing.\n' +
+      '**Suggested mark (advice only):** Full marks, Partly or Missed it' + (marks ? ', and the rubric marks you would give out of ' + marks : '') + '. The student sets the mark.\n' +
+      '**To improve:** one line.\n' +
+      'Address the student as "you". Be concise. Use \\( \\) for inline math and fenced blocks (```) for code.' + STYLE;
+  }
+  function fbParts(c) {
+    var b = c.el.querySelector('button.fbk'), box = c.el.querySelector('.fbkbox'), act = c.el.querySelector('.actions');
+    if (!b && act) {
+      b = document.createElement('button'); b.type = 'button'; b.className = 'fbk'; b.textContent = 'Get feedback'; b.dataset.id = c.id; b.hidden = true;
+      b.title = 'Claude compares your answer with the model answer and the rubric and suggests a mark. You still set the mark.';
+      act.insertBefore(b, act.querySelector('button.walk'));
+      b.addEventListener('click', function () { runFeedback(c.id); });
+    }
+    if (!box) { box = document.createElement('div'); box.className = 'fbkbox'; box.hidden = true; box.setAttribute('aria-live', 'polite'); c.el.appendChild(box); }
+    return { b: b, box: box };
+  }
+  function paintFeedback(id) {
+    var c = CHECKS[id]; if (!c || c.type !== 'written') return;
+    var p = fbParts(c), b = p.b, box = p.box, f = feeds[id], text = writtenText(c);
+    var open = !!c.el.dataset.res && !!text.trim();
+    if (feeding[id]) { box.classList.add('busy'); box.dataset.sig = ''; box.innerHTML = '<p class="wk-h">Claude’s feedback</p><p class="wk-wait">Reading your answer…</p>'; box.hidden = false; if (b) b.hidden = true; return; }
+    box.classList.remove('busy');
+    if (open && f && f.text && f.answer === text) {
+      box.hidden = false;
+      if (box.dataset.sig !== f.at) { box.dataset.sig = f.at; box.innerHTML = '<p class="wk-h">Claude’s feedback</p><div class="wk-body">' + md(f.text) + '</div><p class="fk-note">' + NOTE + '</p>'; typeset(box); }
+      if (b) b.hidden = true;
+      return;
+    }
+    if (open && ferr[id]) { box.hidden = false; box.dataset.sig = ''; box.innerHTML = '<p class="wk-h">Claude’s feedback</p><p class="qc-err">' + esc(ferr[id]) + '</p>'; }
+    else box.hidden = true;
+    if (b) { b.textContent = ferr[id] ? 'Try feedback again' : 'Get feedback'; b.hidden = fbOff || !open; }
+  }
+  function runFeedback(id) {
+    var c = CHECKS[id]; if (!c || feeding[id]) return;
+    var text = writtenText(c); if (!text.trim() || !c.el.dataset.res) return;
+    delete ferr[id]; feeding[id] = true; paintFeedback(id);
+    getSample().then(function (s) {
+      if (!s) throw { code: 'not_granted' };
+      return s([{ role: 'user', content: feedbackPrompt(c, text) }], { cache: false });
+    }).then(function (res) {
+      delete feeding[id];
+      feeds[id] = { text: (res && res.text) || '', answer: text, at: new Date().toISOString() };
+      saveFeedsLocal(); paintFeedback(id);
+      if (fcoll) fcoll.doc(id).set(feeds[id]).catch(function () { });
+    }).catch(function (e) {
+      delete feeding[id];
+      var code = e && e.code;
+      ferr[id] = code === 'not_granted' ? 'Feedback needs permission for this page. Allow it when asked, or from the page’s Permissions menu, then try again.' : code === 'rate_limited' ? 'Too many requests just now. Try again in a minute.' : 'Could not get feedback right now. Try again.';
+      paintFeedback(id);
+    });
+  }
+  function paintAllFeedback() { Object.keys(CHECKS).forEach(function (id) { if (CHECKS[id].type === 'written') paintFeedback(id); }); }
+  window.sgWrittenChanged = function (id) { paintFeedback(id); };
+  paintAllFeedback();
   function runWalk(id) {
     var c = CHECKS[id]; if (!c || walking[id]) return;
     if (c.exam && !c.el.dataset.res) return;
@@ -574,7 +713,10 @@
     e.preventDefault(); runWalk(b.dataset.id);
   });
   Object.keys(walks).forEach(paintWalk);
-  function walkOff() { Array.prototype.forEach.call(document.querySelectorAll('button.walk'), function (b) { b.hidden = true; b.dataset.off = '1'; }); }
+  function walkOff() {
+    Array.prototype.forEach.call(document.querySelectorAll('button.walk'), function (b) { b.hidden = true; b.dataset.off = '1'; });
+    fbOff = true; paintAllFeedback();
+  }
   if (window.claude && claude.use) {
     claude.use('sample').then(function (s) { if (!s) walkOff(); }).catch(walkOff);
     claude.use('db').then(function (d) {
@@ -584,6 +726,11 @@
         snap.docs.forEach(function (sd) { if (sd.exists) { var v = sd.data(); if (v && v.text && (!walks[sd.id] || walks[sd.id].at !== v.at)) { walks[sd.id] = { text: v.text, at: v.at }; } } });
         saveWalksLocal(); Object.keys(walks).forEach(paintWalk);
       }, function () { });
+      fcoll = d.collection('feedback');
+      fcoll.onSnapshot(function (snap) {
+        snap.docs.forEach(function (sd) { if (sd.exists) { var v = sd.data(); if (v && v.text && (!feeds[sd.id] || feeds[sd.id].at !== v.at)) feeds[sd.id] = { text: v.text, answer: v.answer || '', at: v.at }; } });
+        saveFeedsLocal(); paintAllFeedback();
+      }, function () { });
     }).catch(function () { });
   } else walkOff();
 
@@ -591,5 +738,5 @@
   setRail();
   render();
   setTimeout(function () { track(); queueRail(); }, 0);
-  window.sgQA = { docs: function () { return docs; }, answer: answer, walks: function () { return walks; }, walking: function () { return Object.keys(walking); }, state: function () { return { curItem: curItem, answering: Object.keys(answering), errs: errs }; }, prompt: function (id) { return prompt(docs[id]); }, walkPrompt: function (id) { return walkPrompt(CHECKS[id]); } };
+  window.sgQA = { docs: function () { return docs; }, answer: answer, walks: function () { return walks; }, walking: function () { return Object.keys(walking); }, feedback: function () { return feeds; }, feeding: function () { return Object.keys(feeding); }, feedbackPrompt: function (id) { return feedbackPrompt(CHECKS[id], writtenText(CHECKS[id])); }, state: function () { return { curItem: curItem, answering: Object.keys(answering), errs: errs }; }, prompt: function (id) { return prompt(docs[id]); }, walkPrompt: function (id) { return walkPrompt(CHECKS[id]); } };
 })();

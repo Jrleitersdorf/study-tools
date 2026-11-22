@@ -3,10 +3,14 @@
    (built from guide.config.json) and from the data-sg tags in the content.
    Reads:  section[data-sg="unit"]      one page per unit (id, data-num, data-title, optional data-label)
            section[data-sg="exam"]      the practice exam page (optional)
-           .check[data-sg="question"]   questions (data-id, data-type mc|multi|tf|num, data-ans, data-tol, data-suffix)
-           .sol[data-for]               worked solutions, matched to questions by id
+           .check[data-sg="question"]   questions (data-id, data-type mc|multi|tf|num|written, data-ans, data-tol,
+                                        data-suffix, data-points, data-from, data-topic; written: data-format, data-lines)
+           .sol[data-for]               worked solutions, matched to questions by id (written: model-answer + rubric)
+   Written items are self-marked: rec.mark = 'full' | 'part' | 'none' (credit 1, 0.5, 0); firstCorrect is true
+   only when the first attempt is marked full. The exam score weights every question by data-points (default 1).
    Saves:  claude.use('db') collection "progress" when the artifact has the db capability,
-           otherwise localStorage <storage_key>-progress. */
+           otherwise localStorage <storage_key>-progress. Unsent practice text of written items is kept in
+           localStorage <storage_key>-wdraft (this browser only). */
 (function () {
   'use strict';
   var CFG = (window.SG && window.SG.config) || {};
@@ -33,6 +37,22 @@
 
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function fmtN(v) { return String(Math.round((v || 0) * 100) / 100); }
+  var CREDIT = { full: 1, part: 0.5, none: 0 };
+  var MARK_RES = { full: 'right', part: 'partial', none: 'wrong' };
+  var MARK_WORD = { full: 'full marks', part: 'partly', none: 'missed' };
+  var LS_WD = KEY + '-wdraft';
+  var wdraft = {};
+  try { wdraft = JSON.parse(localStorage.getItem(LS_WD) || '{}') || {}; } catch (e) { wdraft = {}; }
+  function saveWDraft() { try { localStorage.setItem(LS_WD, JSON.stringify(wdraft)); } catch (e) { } }
+  var FIELD_SIZING = !!(window.CSS && CSS.supports && CSS.supports('field-sizing', 'content'));
+  function grow(ta) {
+    if (!ta || FIELD_SIZING) return;
+    if (!ta.offsetParent) return;
+    ta.style.height = 'auto';
+    ta.style.height = (ta.scrollHeight + 2) + 'px';
+  }
+  function writtenChanged(info) { if (window.sgWrittenChanged) { try { window.sgWrittenChanged(info.id); } catch (e) { } } }
 
   function buildToc() {
     var ol = document.getElementById('toc');
@@ -68,7 +88,8 @@
 
   function build(el, s, n) {
     var sec = s.id, id = el.dataset.id, type = el.dataset.type, exam = s.exam;
-    var info = { el: el, sec: sec, id: id, type: type, n: n, locked: false, exam: exam };
+    var pts = parseFloat(el.dataset.points);
+    var info = { el: el, sec: sec, id: id, type: type, n: n, locked: false, exam: exam, points: pts > 0 ? pts : 1, hasPoints: pts > 0 };
     checkIndex[id] = info;
     secChecks[sec].push(id);
 
@@ -77,10 +98,16 @@
     var qn = document.createElement('span'); qn.className = 'qn'; qn.textContent = qLabel(s, n);
     qt.parentNode.insertBefore(q, qt);
     q.appendChild(qn); q.appendChild(qt);
-    if (type === 'multi' || type === 'tf') {
+    var tags = [];
+    if (type === 'multi') tags.push('Select all');
+    if (type === 'tf') tags.push('True / False');
+    if (type === 'written') tags.push(el.dataset.format === 'code' ? 'Code' : 'Written');
+    if (info.hasPoints) tags.push(fmtN(info.points) + (info.points === 1 ? ' point' : ' points'));
+    if (tags.length) {
       var tag = document.createElement('span'); tag.className = 'tag';
-      tag.textContent = type === 'multi' ? 'Select all' : 'True / False';
-      qt.appendChild(tag);
+      tag.textContent = tags.join(' · ');
+      var tagHost = qt.tagName === 'P' ? qt : (qt.querySelector('p') || qt);
+      tagHost.appendChild(tag);
     }
 
     var list = el.querySelector('.opts');
@@ -120,10 +147,31 @@
       row.parentNode.insertBefore(hint, row.nextSibling);
       (window.__sgNum = window.__sgNum || []).push(info);
     }
+    if (type === 'written') {
+      var code = el.dataset.format === 'code';
+      var lines = parseInt(el.dataset.lines, 10); if (!(lines > 0)) lines = code ? 6 : 4;
+      var ta = document.createElement('textarea');
+      ta.className = 'wtext' + (code ? ' code' : '');
+      ta.rows = lines; ta.style.minHeight = (lines * (code ? 1.5 : 1.55) + 1.3) + 'em';
+      ta.spellcheck = !code; ta.autocomplete = 'off';
+      if (code) { ta.setAttribute('wrap', 'off'); ta.setAttribute('autocapitalize', 'off'); ta.setAttribute('autocorrect', 'off'); }
+      ta.placeholder = code ? 'Write your code here.' : 'Write your answer here, as you would on the exam.';
+      ta.setAttribute('aria-label', 'Your answer to question ' + qLabel(s, n));
+      q.parentNode.insertBefore(ta, q.nextSibling);
+      if (!exam && wdraft[id]) ta.value = wdraft[id];
+      ta.addEventListener('input', function () {
+        grow(ta); info.nudge.hidden = true;
+        if (!exam) { if (ta.value) wdraft[id] = ta.value; else delete wdraft[id]; saveWDraft(); }
+        if (info.onInput) info.onInput();
+      });
+      ta.addEventListener('focus', function () { grow(ta); });
+      ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !exam) { e.preventDefault(); compareWritten(info); } });
+      info.input = ta;
+    }
     if (exam) info.onInput = function () { examDraft(info); };
 
     var act = document.createElement('div'); act.className = 'actions';
-    var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'primary'; btn.textContent = 'Check';
+    var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'primary'; btn.textContent = type === 'written' ? 'Compare with the model answer' : 'Check';
     var retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Try again'; retry.hidden = true;
     var nudge = document.createElement('span'); nudge.className = 'nudge'; nudge.hidden = true;
     var showBtn = document.createElement('button'); showBtn.type = 'button'; showBtn.className = 'showans'; showBtn.textContent = 'Show answer'; showBtn.hidden = true;
@@ -137,11 +185,28 @@
     var first = document.createElement('div'); first.className = 'first';
     var expl = el.querySelector('.expl');
     var sol = document.querySelector('.sol[data-for="' + id + '"]');
-    fb.appendChild(verdict); if (expl) fb.appendChild(expl); if (sol) { sol.hidden = true; fb.appendChild(sol); } fb.appendChild(first);
-    if (exam && el.dataset.from && SEC[el.dataset.from]) { var fr = document.createElement('div'); fr.className = 'from'; fr.textContent = 'From ' + unitName(el.dataset.from) + ': ' + SEC[el.dataset.from].title; fb.appendChild(fr); }
+    fb.appendChild(verdict); if (expl) fb.appendChild(expl); if (sol) { sol.hidden = true; fb.appendChild(sol); }
+    if (type === 'written') {
+      if (sol && !sol.querySelector('.sol-h')) { var sh = document.createElement('p'); sh.className = 'sol-h'; sh.textContent = 'Model answer'; sol.insertBefore(sh, sol.firstChild); }
+      var rb = sol && sol.querySelector('[data-sg="rubric"]');
+      if (rb && !(rb.previousElementSibling && rb.previousElementSibling.classList.contains('rubric-h'))) { var rh = document.createElement('p'); rh.className = 'rubric-h'; rh.textContent = 'Rubric'; rb.parentNode.insertBefore(rh, rb); }
+      if (sol) Array.prototype.forEach.call(sol.querySelectorAll('[data-sg="rubric"] > li[data-marks]'), function (li) {
+        var mv = parseFloat(li.dataset.marks); if (isNaN(mv)) return;
+        var mk = document.createElement('span'); mk.className = 'mk'; mk.textContent = fmtN(mv) + (mv === 1 ? ' mark' : ' marks');
+        li.insertBefore(mk, li.firstChild);
+      });
+      var sm = document.createElement('div'); sm.className = 'selfmark'; sm.hidden = true;
+      sm.innerHTML = '<span class="sm-l">Mark your answer against the rubric:</span><div class="seg" role="group" aria-label="Your mark for question ' + esc(qLabel(s, n)) + '">' +
+        '<button type="button" data-m="full" aria-pressed="false">Full marks</button><button type="button" data-m="part" aria-pressed="false">Partly</button><button type="button" data-m="none" aria-pressed="false">Missed it</button></div>';
+      Array.prototype.forEach.call(sm.querySelectorAll('button'), function (b) { b.addEventListener('click', function () { setMark(info, b.dataset.m); }); });
+      fb.appendChild(sm); info.markEl = sm;
+    }
+    fb.appendChild(first);
+    var fromU = el.dataset.from && SEC[el.dataset.from] && !SEC[el.dataset.from].exam ? el.dataset.from : '';
+    if (exam && (fromU || el.dataset.topic)) { var fr = document.createElement('div'); fr.className = 'from'; fr.textContent = fromU ? 'From ' + unitName(fromU) + ': ' + SEC[fromU].title : 'Topic: ' + el.dataset.topic; fb.appendChild(fr); }
     el.appendChild(act); el.appendChild(fb);
 
-    btn.addEventListener('click', function () { grade(info); });
+    btn.addEventListener('click', function () { if (type === 'written') compareWritten(info); else grade(info); });
     retry.addEventListener('click', function () { reset(info); });
     showBtn.addEventListener('click', function () { reveal(info); });
     info.btn = btn; info.retry = retry; info.nudge = nudge; info.fb = fb; info.verdict = verdict; info.first = first;
@@ -167,6 +232,7 @@
 
   function readAnswer(info) {
     if (info.type === 'num') { var raw = String(info.input.value || '').trim(); return raw ? raw : null; }
+    if (info.type === 'written') { var wv = String(info.input.value || ''); return wv.trim() ? wv.replace(/\s+$/, '') : null; }
     var sel = Array.prototype.slice.call(info.list.querySelectorAll('input:checked')).map(function (i) { return i.value; });
     if (!sel.length) return null;
     return info.type === 'multi' ? sel.sort().join(',') : sel[0];
@@ -175,6 +241,7 @@
   function isCorrect(info, ans) {
     var key = info.el.dataset.ans;
     if (ans === '' || ans === null || ans === undefined) return false;
+    if (info.type === 'written') return false; /* written items are marked by the student (setMark), never here */
     if (info.type === 'num') {
       var v = parseNum(ans); if (isNaN(v)) return null;
       var tol = parseFloat(info.el.dataset.tol || '0.005');
@@ -208,7 +275,75 @@
     refreshAll();
   }
 
+  /* ---------- written items: compare with the model answer, then mark yourself ---------- */
+  function compareWritten(info) {
+    if (info.locked || info.exam) return;
+    var ans = readAnswer(info);
+    if (ans === null) { showNudge(info, 'Write your answer first.'); return; }
+    var st = state[info.sec];
+    var rec = st.checks[info.id] || (st.checks[info.id] = { tries: 0 });
+    var now = new Date().toISOString();
+    if (rec.first === undefined) { rec.first = ans; rec.firstCorrect = false; rec.firstAt = now; }
+    rec.last = ans; rec.lastCorrect = false; rec.tries = (rec.tries || 0) + 1; rec.at = now;
+    delete rec.mark; delete rec.gaveUp;
+    st.updatedAt = now;
+    delete wdraft[info.id]; saveWDraft();
+    show(info, ans, false, rec);
+    persist(info.sec);
+    refreshAll();
+  }
+
+  function setMark(info, m) {
+    if (!CREDIT.hasOwnProperty(m) || !info.locked) return;
+    var st = state[info.sec], rec = st.checks[info.id];
+    if (!rec || !String(rec.last || '').trim() || rec.gaveUp) return;
+    if (info.exam && !st.submittedAt) return;
+    var now = new Date().toISOString();
+    rec.mark = m; rec.lastCorrect = m === 'full'; rec.markedAt = now; rec.at = now;
+    /* the first attempt's mark decides firstCorrect; it can be corrected until Try again */
+    if ((rec.tries || 1) <= 1) { rec.firstMark = m; rec.firstCorrect = m === 'full'; }
+    st.updatedAt = now;
+    show(info, rec.last, false, rec);
+    if (info.exam) {
+      var sc = examScore(), h = st.history && st.history[st.history.length - 1];
+      if (h) { h.right = sc.right; h.total = sc.total; h.pending = sc.pending; }
+      paintExam();
+    }
+    persist(info.sec);
+    refreshAll();
+  }
+
+  function showWritten(info, ans, rec) {
+    rec = rec || {};
+    info.locked = true; info.el.classList.add('locked');
+    info.nudge.hidden = true;
+    info.lastAns = ans; info.lastOk = rec.mark === 'full';
+    var blank = !String(ans || '').trim();
+    var m = rec.mark || (blank ? 'none' : '');
+    info.input.value = ans || ''; info.input.readOnly = true; grow(info.input);
+    info.el.dataset.res = m ? MARK_RES[m] : 'pending';
+    info.verdict.className = 'verdict ' + ({ full: 'r', part: 'p', none: 'w' }[m] || 'n');
+    info.verdict.textContent = rec.gaveUp ? 'Solved for you, counted as missed.' :
+      blank ? 'Not answered, counted as missed.' :
+      m === 'full' ? 'You marked this: full marks.' : m === 'part' ? 'You marked this: partly right.' : m === 'none' ? 'You marked this: missed it.' :
+      'Compare your answer with the model answer and the rubric, then mark it yourself.';
+    if (info.expl) info.expl.hidden = false;
+    if (info.sol) { info.sol.hidden = false; if (window.sgMathReady && window.MathJax && MathJax.typesetPromise && !info.sol.querySelector('mjx-container') && /\\\(|\\\[/.test(info.sol.textContent)) MathJax.typesetPromise([info.sol]).catch(function () { }); }
+    if (info.markEl) {
+      info.markEl.hidden = blank || !!rec.gaveUp;
+      Array.prototype.forEach.call(info.markEl.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.m === rec.mark)); });
+    }
+    info.showBtn.hidden = true;
+    info.first.textContent = !info.exam && rec.tries > 1 ? ('First try: ' + (rec.firstMark ? MARK_WORD[rec.firstMark] : 'not marked') + ' · attempts: ' + rec.tries) : '';
+    info.fb.hidden = false;
+    info.btn.hidden = true; info.retry.hidden = !!info.exam;
+    if (info.exam && info.walk && !info.walk.dataset.off) info.walk.hidden = false;
+    var wb = info.el.querySelector('.walkbox'); if (wb && wb.dataset.has && rec.shown) { wb.hidden = false; if (info.walk) info.walk.hidden = true; }
+    writtenChanged(info);
+  }
+
   function show(info, ans, ok, rec) {
+    if (info.type === 'written') { showWritten(info, ans, rec); return; }
     info.locked = true; info.el.classList.add('locked');
     info.el.dataset.res = ok ? 'right' : 'wrong';
     info.nudge.hidden = true;
@@ -279,13 +414,18 @@
     var info = checkIndex[id]; if (!info) return;
     var st = state[info.sec], rec = st.checks[id], now = new Date().toISOString();
     if (info.exam && !info.locked) return;
+    var wr = info.type === 'written';
     if (!rec) {
       rec = st.checks[id] = { tries: 1, first: '', firstCorrect: false, firstAt: now, last: '', lastCorrect: false, at: now, gaveUp: true, shown: true };
+      if (wr) { rec.mark = 'none'; rec.firstMark = 'none'; }
       show(info, '', false, rec);
     } else if (!info.locked) {
       rec.tries = (rec.tries || 0) + 1; rec.last = ''; rec.lastCorrect = false; rec.at = now; rec.gaveUp = true; rec.shown = true;
+      if (wr) rec.mark = 'none';
       show(info, '', false, rec);
-    } else { rec.shown = true; applyReveal(info); }
+    } else if (wr) { rec.shown = true; show(info, rec.last || '', false, rec); } /* already compared: the student's own mark stands */
+    else { rec.shown = true; applyReveal(info); }
+    if (wr && !info.exam) { delete wdraft[id]; saveWDraft(); }
     st.updatedAt = now; persist(info.sec); refreshAll();
   };
 
@@ -305,7 +445,8 @@
         inp.closest('.opt').classList.remove('sel', 'ok', 'no', 'miss');
       });
     }
-    if (info.input) { info.input.disabled = false; info.input.value = ''; if (!info.exam) info.input.focus(); }
+    if (info.type === 'written') { info.input.readOnly = false; info.input.value = ''; if (info.input.style.height) info.input.style.height = ''; if (info.markEl) info.markEl.hidden = true; if (!info.exam) info.input.focus(); }
+    else if (info.input) { info.input.disabled = false; info.input.value = ''; if (!info.exam) info.input.focus(); }
     if (info.expl) info.expl.hidden = true;
     if (info.sol) info.sol.hidden = true;
     info.showBtn.hidden = true;
@@ -314,6 +455,7 @@
     var rs = state[info.sec] && state[info.sec].checks[info.id];
     if (rs && rs.shown) { rs.shown = false; persist(info.sec); }
     info.fb.hidden = true; info.btn.hidden = !!info.exam; info.retry.hidden = true;
+    if (info.type === 'written') writtenChanged(info);
   }
 
   /* ---------- practice exam: answer everything, then submit once ---------- */
@@ -331,15 +473,26 @@
     if (!x.startedAt) x.startedAt = new Date().toISOString();
     x.updatedAt = new Date().toISOString();
     persist(EX.id); paintExam();
+    if (!unitEls.length) refreshAll();
   }
+  /* score in points (data-points, default 1); written items count full 1, partly 0.5, missed 0, unmarked 0 for now.
+     The breakdown groups by data-from (a unit) when present, otherwise by data-topic, weakest first. */
   function examScore() {
-    var ids = secChecks[EX.id], x = exState(), right = 0, by = {};
+    var ids = secChecks[EX.id], x = exState(), right = 0, total = 0, pending = 0, by = {}, order = [], anyPts = false;
     ids.forEach(function (id) {
-      var r = x.checks[id], ok = !!(r && r.firstCorrect), from = checkIndex[id].el.dataset.from || '';
-      if (ok) right++;
-      if (from) { by[from] = by[from] || [0, 0]; by[from][1]++; if (ok) by[from][0]++; }
+      var info = checkIndex[id], r = x.checks[id], credit = 0, pend = false, el = info.el;
+      if (info.hasPoints) anyPts = true;
+      if (info.type === 'written') { if (r && r.mark) credit = CREDIT[r.mark] || 0; else if (r) pend = true; }
+      else credit = r && r.firstCorrect ? 1 : 0;
+      right += info.points * credit; total += info.points; if (pend) pending++;
+      var from = el.dataset.from && SEC[el.dataset.from] && !SEC[el.dataset.from].exam ? el.dataset.from : '';
+      var key = from ? 'u:' + from : (el.dataset.topic ? 't:' + el.dataset.topic : '');
+      if (!key) return;
+      if (!by[key]) { by[key] = { label: from ? unitName(from) + ': ' + SEC[from].title : el.dataset.topic, got: 0, of: 0, pending: 0, i: order.length }; order.push(key); }
+      by[key].got += info.points * credit; by[key].of += info.points; if (pend) by[key].pending++;
     });
-    return { right: right, total: ids.length, by: by };
+    var rows = order.map(function (k) { return by[k]; }).sort(function (a, b) { return (a.got / a.of - b.got / b.of) || (a.i - b.i); });
+    return { right: Math.round(right * 100) / 100, total: Math.round(total * 100) / 100, pending: pending, by: by, rows: rows, points: anyPts };
   }
   function submitExam() {
     var x = exState(), now = new Date().toISOString();
@@ -349,11 +502,12 @@
       var info = checkIndex[id], ans = readAnswer(info), ok = ans === null ? false : isCorrect(info, ans);
       if (ok === null) ok = false;
       var rec = x.checks[id] = { tries: 1, first: ans || '', firstCorrect: !!ok, firstAt: now, last: ans || '', lastCorrect: !!ok, at: now };
+      if (info.type === 'written' && ans === null) { rec.mark = 'none'; rec.firstMark = 'none'; }
       show(info, ans || '', !!ok, rec);
     });
     x.seconds = elapsed();
     var sc = examScore();
-    x.history = (x.history || []).concat([{ right: sc.right, total: sc.total, seconds: x.seconds, at: now }]);
+    x.history = (x.history || []).concat([{ right: sc.right, total: sc.total, pending: sc.pending, seconds: x.seconds, at: now }]);
     x.draft = {}; x.updatedAt = now;
     persist(EX.id); refreshAll(); paintExam();
     if (exResult) exResult.scrollIntoView({ block: 'nearest' });
@@ -380,10 +534,14 @@
     if (exSubmit) {
       if (done) {
         var sc = examScore(), pct = sc.total ? Math.round(100 * sc.right / sc.total) : 0;
-        var rows = Object.keys(sc.by).map(function (u) { return '<tr><td>' + esc(unitName(u) + (SEC[u] ? ': ' + SEC[u].title : '')) + '</td><td class="num">' + sc.by[u][0] + ' / ' + sc.by[u][1] + '</td></tr>'; }).join('');
-        exSubmit.innerHTML = '<div class="ex-result" data-sg="exam-result"><p class="ex-score">Score: ' + sc.right + ' / ' + sc.total + ' (' + pct + '%)</p>' +
-          '<p class="src">Time taken ' + fmtTime(x.seconds || el) + (mins ? ' of ' + mins + ' minutes' : '') + '. Each question now shows whether you got it right. Use Show answer or Solve it for me on any question to review it.</p>' +
-          (rows ? '<div class="tbl"><table><thead><tr><th>Where the questions came from</th><th>Right</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '') +
+        var hasW = secChecks[EX.id].some(function (id) { return checkIndex[id].type === 'written'; });
+        var rows = sc.rows.map(function (r) { return '<tr><td>' + esc(r.label) + '</td><td class="num">' + fmtN(r.got) + ' / ' + fmtN(r.of) + (r.pending ? ' (' + r.pending + ' to mark)' : '') + '</td></tr>'; }).join('');
+        exSubmit.innerHTML = '<div class="ex-result" data-sg="exam-result"><p class="ex-score">Score: ' + fmtN(sc.right) + ' / ' + fmtN(sc.total) +
+          (sc.pending ? ' so far; ' + sc.pending + ' written answer' + (sc.pending === 1 ? '' : 's') + ' still to mark yourself' : ' (' + pct + '%)') + '</p>' +
+          '<p class="src">Time taken ' + fmtTime(x.seconds || el) + (mins ? ' of ' + mins + ' minutes' : '') + '. Each question now shows whether you got it right.' +
+          (hasW ? ' Written answers show a model answer and a rubric: mark each one yourself (full marks count 1, partly 0.5, missed 0) and the score updates.' : '') +
+          ' Use Show answer or Solve it for me on any question to review it.</p>' +
+          (rows ? '<div class="tbl"><table><thead><tr><th>Where the questions came from, weakest first</th><th>' + (sc.points ? 'Points' : 'Right') + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '') +
           '<div class="actions"><button type="button" class="ex-retake">Retake the exam</button></div></div>';
         exSubmit.querySelector('.ex-retake').addEventListener('click', function () {
           var a = exSubmit.querySelector('.actions');
@@ -413,7 +571,7 @@
     Object.keys(x.draft || {}).forEach(function (id) {
       var info = checkIndex[id], v = x.draft[id]; if (!info) return;
       if (info.list) { var vals = String(v).split(','); Array.prototype.forEach.call(info.list.querySelectorAll('input'), function (inp) { inp.checked = vals.indexOf(inp.value) >= 0; }); markSel(info); }
-      else if (info.input) info.input.value = v;
+      else if (info.input) { info.input.value = v; if (info.type === 'written') grow(info.input); }
     });
   }
   if (EX) {
@@ -452,7 +610,7 @@
   /* ---------- progress, contents, summary ---------- */
   var CONF_LABEL = { shaky: 'Shaky', ok: 'OK', solid: 'Solid' };
   function refreshAll() {
-    var total = 0, answered = 0, right = 0, wrong = 0;
+    var total = 0, answered = 0, right = 0, wrong = 0, exOnly = false;
     var body = document.getElementById('sum-body');
     var html = '';
     SECS.forEach(function (s) {
@@ -460,11 +618,20 @@
       var st = document.querySelector('.toc a[data-unit="' + s.id + '"] .st');
       if (s.exam) {
         var x = state[s.id], hist = x.history || [], last = hist[hist.length - 1];
-        if (st) st.textContent = last ? last.right + '/' + last.total : (x.startedAt ? 'in progress' : 'not taken');
+        if (st) st.textContent = last ? fmtN(last.right) + '/' + fmtN(last.total) : (x.startedAt ? 'in progress' : 'not taken');
         var exl = document.getElementById('sum-exam');
         if (exl) {
           if (!hist.length) exl.textContent = 'Practice exam: not taken yet' + (x.startedAt ? ' (in progress).' : '.');
-          else { var best = hist.reduce(function (a, h) { return h.right / h.total > a.right / a.total ? h : a; }, hist[0]); exl.textContent = 'Practice exam: last score ' + last.right + ' / ' + last.total + ', best ' + best.right + ' / ' + best.total + ', ' + hist.length + ' attempt' + (hist.length === 1 ? '' : 's') + '.'; }
+          else { var best = hist.reduce(function (a, h) { return h.right / h.total > a.right / a.total ? h : a; }, hist[0]); exl.textContent = 'Practice exam: last score ' + fmtN(last.right) + ' / ' + fmtN(last.total) + (last.pending ? ' (' + last.pending + ' written answer' + (last.pending === 1 ? '' : 's') + ' still to mark)' : '') + ', best ' + fmtN(best.right) + ' / ' + fmtN(best.total) + ', ' + hist.length + ' attempt' + (hist.length === 1 ? '' : 's') + '.'; }
+        }
+        if (!unitEls.length) { /* exam-only guide: the header meter follows the exam */
+          var n0 = ids.length, ans0 = x.submittedAt ? n0 : Object.keys(x.draft || {}).length;
+          var mA = document.getElementById('m-ans'), mF = document.getElementById('m-first'), bG = document.getElementById('bar-good'), bB = document.getElementById('bar-bad');
+          if (mA) mA.textContent = (x.submittedAt ? 'Submitted' : ans0 + ' of ' + n0 + ' answered');
+          if (mF) mF.textContent = last ? 'Last score ' + fmtN(last.right) + ' / ' + fmtN(last.total) : 'Not taken yet';
+          if (bG) bG.style.width = (last && last.total ? 100 * last.right / last.total : 0) + '%';
+          if (bB) bB.style.width = (last && last.total ? 100 * (last.total - last.right) / last.total : 0) + '%';
+          exOnly = true;
         }
         return;
       }
@@ -480,6 +647,7 @@
       var meta = s.el.querySelector('.questions-meta'); if (meta) meta.textContent = a + ' of ' + ids.length + ' answered' + (a ? ', ' + r + ' right first try' : '');
     });
     if (body) body.innerHTML = html;
+    if (exOnly) return;
     var ma = document.getElementById('m-ans'), mf = document.getElementById('m-first');
     if (ma) ma.textContent = answered + ' of ' + total + ' questions answered';
     if (mf) mf.textContent = right + ' right on first try';

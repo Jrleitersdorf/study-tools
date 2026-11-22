@@ -18,10 +18,12 @@ import json, os, re, sys
 from html.parser import HTMLParser
 
 VOID = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr'}
-QTYPES = {'mc', 'multi', 'tf', 'num'}
+QTYPES = {'mc', 'multi', 'tf', 'num', 'written'}
 SOURCE_KINDS = {'slides', 'transcript', 'notes', 'reading', 'homework', 'practice-exam', 'review-sheet', 'hints', 'other'}
 COMPONENTS = {'text', 'equation', 'figure', 'table', 'pitfall', 'worked-example', 'list', 'steps', 'subsection',
-              'section-title', 'section-sources'}
+              'code-block', 'section-title', 'section-sources'}
+SOURCE_USES = ('exam-intel', 'excluded', 'exam')
+PRE_RE = re.compile(r'<pre\b[^>]*>.*?</pre>', re.S | re.I)
 SUB_COMPONENTS = COMPONENTS - {'subsection', 'section-title', 'section-sources'} | {'subsection-title'}
 ID_RE = re.compile(r'^[A-Za-z][A-Za-z0-9-]*$')
 QID_RE = re.compile(r'^[A-Za-z][A-Za-z0-9-]*_q\d+$')
@@ -153,7 +155,14 @@ def check_config(rep, guide):
     cfg = load_json(rep, os.path.join(guide, 'guide.config.json'), 'guide.config.json')
     if cfg is None:
         return None
+    exam_only = False
+    try:
+        exam_only = bool(json.load(open(os.path.join(guide, 'outline.json'), encoding='utf-8')).get('exam_only'))
+    except Exception:
+        pass
     for k in ['guide_title', 'course', 'exam_name', 'unit_label', 'storage_key', 'header_kicker', 'scope_line']:
+        if k == 'unit_label' and exam_only:
+            continue
         if not str(cfg.get(k, '')).strip():
             rep.err('guide.config.json', 0, '"%s" is empty. Fill it in (see the "_%s" note in the template).' % (k, k))
     sk = str(cfg.get('storage_key', ''))
@@ -171,8 +180,14 @@ def check_outline(rep, guide, sources_dir=None, require_files=True):
     if o is None:
         return None
     units = o.get('units') or []
-    if not units:
-        rep.err('outline.json', 0, '"units" is empty. List one entry per unit page, in reading order.')
+    exam_only = bool(o.get('exam_only'))
+    if exam_only:
+        if units:
+            rep.err('outline.json', 0, '"exam_only" is true but "units" lists %d unit(s). An exam-only guide has no unit pages: set "units" to [] or remove "exam_only".' % len(units))
+        if not o.get('exam'):
+            rep.err('outline.json', 0, '"exam_only" is true but there is no "exam" entry. Add "exam" with its file, questions and solutions.')
+    elif not units:
+        rep.err('outline.json', 0, '"units" is empty. List one entry per unit page, in reading order (or, for a guide that is only a practice exam, set "exam_only": true).')
     seen = set()
     for i, u in enumerate(units):
         uid = u.get('id', '')
@@ -222,8 +237,10 @@ def check_outline(rep, guide, sources_dir=None, require_files=True):
         for uref in s.get('units', []):
             if uref not in seen:
                 rep.err('outline.json', 0, 'source "%s" maps to unit "%s", which is not in "units".' % (p, uref))
-        if not s.get('units') and s.get('use') not in ('exam-intel', 'excluded'):
-            rep.err('outline.json', 0, 'source "%s" feeds no unit. Map it to the units it supports, or set "use" to "exam-intel" or "excluded" with a "note" saying why. Nothing may be dropped silently.' % p)
+        if s.get('use') == 'exam' and not o.get('exam'):
+            rep.err('outline.json', 0, 'source "%s" has "use": "exam" but the guide has no practice exam.' % p)
+        if not s.get('units') and s.get('use') not in SOURCE_USES:
+            rep.err('outline.json', 0, 'source "%s" feeds no unit. Map it to the units it supports, or set "use" to "exam" (it feeds the practice exam), "exam-intel" or "excluded" with a "note" saying why. Nothing may be dropped silently.' % p)
         if s.get('use') == 'excluded' and not s.get('note'):
             rep.err('outline.json', 0, 'source "%s" is excluded without a "note". Say why it is not used.' % p)
     if sources_dir:
@@ -246,7 +263,41 @@ def check_outline(rep, guide, sources_dir=None, require_files=True):
 
 
 # ---------------------------------------------------------------- content
+def blank_code(raw):
+    """Code blocks are not math: blank them out (keeping line numbers) before the math checks."""
+    return PRE_RE.sub(lambda m: '\n' * m.group(0).count('\n'), raw)
+
+
+def check_code(rep, f, raw, root):
+    """The code block component: <pre class="code" data-sg="code-block"><code>...</code></pre>."""
+    body = re.sub(r'<!--.*?-->', lambda m: '\n' * m.group(0).count('\n'), raw, flags=re.S)
+    for m in PRE_RE.finditer(body):
+        block = m.group(0)
+        start = block.find('>') + 1
+        end = len(block) - len('</pre>')
+        for k in re.finditer(r'<(?!/?code\b)', block[start:end], re.I):
+            pos = m.start() + start + k.start()
+            ctx = body[max(0, pos - 15):pos + 15].replace('\n', ' ').strip()
+            rep.warn(f, line_of(body, pos), 'a raw < inside a code block ("...%s..."). Write &lt; (and &amp; for &): a raw < can start a tag and swallow the code after it.' % ctx)
+            break
+    for n in root.iter():
+        if n.sg() == 'code-block':
+            if n.tag != 'pre' or 'code' not in n.classes():
+                rep.err(f, n.line, 'data-sg="code-block" must be <pre class="code" data-sg="code-block"><code>...</code></pre>.')
+            elif not n.find(lambda c: c.tag == 'code'):
+                rep.warn(f, n.line, 'a code block has no <code> inside. Write <pre class="code" data-sg="code-block"><code>...</code></pre>.')
+            a = n.parent
+            while a is not None and a.tag != '#root':
+                if a.tag == 'p':
+                    rep.err(f, n.line, 'a code block sits inside a <p>, which cannot hold a <pre>: the browser breaks the paragraph and the block lands outside it. Put it after the paragraph; for a question stem use <div class="qt" data-sg="question-stem"> with a <p> and the <pre> inside.')
+                    break
+                a = a.parent
+        elif n.tag == 'pre':
+            rep.warn(f, n.line, 'a <pre> without data-sg="code-block". Use <pre class="code" data-sg="code-block"><code>...</code></pre> for code.')
+
+
 def check_math(rep, f, raw):
+    raw = blank_code(raw)
     for m in re.finditer(r'\\\((.*?)\\\)|\\\[(.*?)\\\]', raw, re.S):
         body = m.group(1) if m.group(1) is not None else m.group(2)
         ln = line_of(raw, m.start())
@@ -294,6 +345,7 @@ def unit_checks(rep, guide, u, cfg, all_ids, allow_example, qids, sol_ids, exam=
     raw, root, comments = parse(path)
     check_math(rep, f, raw)
     check_style(rep, f, raw, cfg, allow_example)
+    check_code(rep, f, raw, root)
     if '<!--QUESTIONS-->' not in raw:
         rep.err(f, 0, 'the <!--QUESTIONS--> marker is missing. Keep it where the questions go (see the template).')
     if exam:
@@ -426,15 +478,17 @@ def unit_checks(rep, guide, u, cfg, all_ids, allow_example, qids, sol_ids, exam=
             all_ids.setdefault(n.get('id'), []).append(f)
 
 
-def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids, sol_ids, unit_ids, exam=False):
+def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids, sol_ids, unit_ids, exam=False, exam_only=False):
     qpath, spath = os.path.join(guide, qfile), os.path.join(guide, sfile)
     if not os.path.exists(qpath) or not os.path.exists(spath):
         return
     qraw, qroot, _ = parse(qpath)
     sraw, sroot, _ = parse(spath)
-    for f, raw in ((qfile, qraw), (sfile, sraw)):
+    for f, raw, root in ((qfile, qraw, qroot), (sfile, sraw, sroot)):
         check_math(rep, f, raw)
         check_style(rep, f, raw, cfg, allow_example)
+        check_code(rep, f, raw, root)
+    written_ids = {c.get('data-id') for c in qroot.find_all(lambda n: 'check' in n.classes() and n.get('data-type') == 'written')}
     sols = {}
     for so in sroot.find_all(lambda n: 'sol' in n.classes() and n.get('data-for')):
         fid = so.get('data-for')
@@ -444,6 +498,11 @@ def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids,
         sol_ids.setdefault(fid, []).append(sfile)
         if so.sg() != 'solution':
             rep.warn(sfile, so.line, 'solution "%s" should carry data-sg="solution".' % fid)
+        if fid in written_ids:
+            check_written_solution(rep, sfile, so, fid)
+            continue
+        if so.find(lambda n: n.sg() in ('model-answer', 'rubric')):
+            rep.warn(sfile, so.line, 'solution "%s" has a model answer or rubric, but its question is not data-type="written". Model answers and rubrics are for written items only.' % fid)
         if not so.find(lambda n: 'ws' in n.classes()):
             rep.err(sfile, so.line, 'solution "%s" has no steps list (<ol class="ws">).' % fid)
         if not so.find(lambda n: 'sol-a' in n.classes()):
@@ -456,13 +515,33 @@ def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids,
         where = 'question "%s"' % qid
         if c.sg() != 'question':
             rep.warn(qfile, c.line, '%s should carry data-sg="question".' % where)
+        topic = c.get('data-topic')
+        if topic is not None:
+            if not topic.strip():
+                rep.err(qfile, c.line, '%s has an empty data-topic. Give a short topic name (2 to 5 words) or remove it.' % where)
+            elif len(topic) > 40:
+                rep.warn(qfile, c.line, '%s has a long data-topic ("%s"). Keep it to a short name of 2 to 5 words: it labels a row of the score breakdown.' % (where, topic[:40]))
+            if not exam:
+                rep.warn(qfile, c.line, '%s has data-topic, which only the practice exam uses (unit questions are grouped by their unit).' % where)
+        pts = c.get('data-points')
+        if pts is not None:
+            try:
+                if float(pts) <= 0:
+                    raise ValueError
+            except ValueError:
+                rep.err(qfile, c.line, '%s has data-points="%s". Points must be a positive number, e.g. data-points="2" or "0.5".' % (where, pts))
         if exam:
             if not re.match(r'^exam_q\d+$', qid):
                 rep.err(qfile, c.line, 'exam question id "%s" should look like "exam_q3".' % qid)
             fr = c.get('data-from')
-            if not fr:
-                rep.warn(qfile, c.line, '%s has no data-from naming the unit it tests (used for the score breakdown).' % where)
-            elif fr not in unit_ids:
+            if exam_only:
+                if fr:
+                    rep.err(qfile, c.line, '%s has data-from="%s", but an exam-only guide has no units. Use data-topic="<short topic name>" for the score breakdown instead.' % (where, fr))
+                elif not topic:
+                    rep.warn(qfile, c.line, '%s has no data-topic. Name its topic (data-topic="Half-life") so the score breakdown can group it.' % where)
+            elif not fr and not topic:
+                rep.warn(qfile, c.line, '%s has neither data-from (the unit it tests) nor data-topic. One of them is needed for the score breakdown.' % where)
+            elif fr and fr not in unit_ids:
                 rep.err(qfile, c.line, '%s has data-from="%s", which is not a unit id.' % (where, fr))
         elif not QID_RE.match(qid):
             rep.err(qfile, c.line, 'question id "%s" should look like "<unit-id>_q<n>", e.g. "L6_q3".' % qid)
@@ -470,8 +549,12 @@ def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids,
             rep.err(qfile, c.line, 'question id "%s" is used twice in the guide. Ids must be unique.' % qid)
         qids[qid] = qfile
         if typ not in QTYPES:
-            rep.err(qfile, c.line, '%s has data-type="%s". Use mc, multi, tf or num.' % (where, typ))
+            rep.err(qfile, c.line, '%s has data-type="%s". Use mc, multi, tf, num or written.' % (where, typ))
             continue
+        if typ != 'written':
+            for a in ('data-format', 'data-lines'):
+                if c.get(a) is not None:
+                    rep.warn(qfile, c.line, '%s has %s, which only written items use.' % (where, a))
         stem = c.find(lambda n: 'qt' in n.classes())
         if not stem or not stem.content():
             rep.err(qfile, c.line, '%s has no stem (<p class="qt">).' % where)
@@ -482,6 +565,29 @@ def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids,
                 rep.warn(qfile, stem.line, '%s stem says "%s". Stems must be self-contained: restate what the reader needs.' % (where, m.group(0)))
         opts = c.find_all(lambda n: n.tag == 'li' and n.get('data-k') is not None)
         keys = [o.get('data-k') for o in opts]
+        if typ == 'written':
+            if c.get('data-ans') is not None:
+                rep.err(qfile, c.line, '%s is written and must not have data-ans. Its key is the model answer and rubric in the worked solution file.' % where)
+            if opts or c.find(lambda n: 'opts' in n.classes()):
+                rep.err(qfile, c.line, '%s is written and must not list options. Use data-type="mc" for a choice.' % where)
+            fmt = c.get('data-format')
+            if fmt is not None and fmt != 'code':
+                rep.err(qfile, c.line, '%s has data-format="%s". The only format is "code" (a monospace box); leave it out for prose.' % (where, fmt))
+            ln = c.get('data-lines')
+            if ln is not None and not (ln.isdigit() and 1 <= int(ln) <= 40):
+                rep.err(qfile, c.line, '%s has data-lines="%s". Use a whole number from 1 to 40: the height of the answer box in lines.' % (where, ln))
+            so = sols.get(qid)
+            if not so:
+                rep.err(sfile, 0, 'no worked solution for %s. Add <div class="sol" data-for="%s"> with a model answer and a rubric to %s.' % (where, qid, sfile))
+            elif pts is not None:
+                marks = [li.get('data-marks') for li in so.find_all(lambda n: n.tag == 'li' and n.parent is not None and n.parent.sg() == 'rubric')]
+                try:
+                    tot = sum(float(m) for m in marks if m is not None)
+                    if marks and all(m is not None for m in marks) and abs(tot - float(pts)) > 1e-9:
+                        rep.warn(sfile, so.line, 'the rubric of %s adds up to %g marks but the question has data-points="%s". Make them match so the rubric reads like the real exam\'s marking.' % (where, tot, pts))
+                except ValueError:
+                    pass
+            continue
         if typ in ('mc', 'multi'):
             if len(opts) < 2:
                 rep.err(qfile, c.line, '%s needs options (<ol class="opts"><li data-k="a">...).' % where)
@@ -521,6 +627,8 @@ def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids,
                 rep.err(qfile, c.line, '%s is numeric and must not list options.' % where)
         if not c.find(lambda n: 'expl' in n.classes()):
             rep.warn(qfile, c.line, '%s has no explanation (<div class="expl">).' % where)
+        if stem and stem.tag == 'div' and not stem.find(lambda n: n.tag == 'p'):
+            rep.warn(qfile, stem.line, '%s has a <div> stem with no <p>. Put the question text in a <p> inside it.' % where)
         so = sols.get(qid)
         if not so:
             rep.err(sfile, 0, 'no worked solution for %s. Add <div class="sol" data-for="%s"> to %s.' % (where, qid, sfile))
@@ -548,6 +656,41 @@ def question_checks(rep, guide, qfile, sfile, cfg, all_ids, allow_example, qids,
     for fid in sols:
         if fid not in qids:
             rep.err(sfile, sols[fid].line, 'worked solution for "%s" matches no question. Fix data-for or delete it.' % fid)
+
+
+def check_written_solution(rep, sfile, so, fid):
+    """A written item's solution: a model answer and a rubric of at least 2 points; steps and an answer line are optional."""
+    mo = so.find(lambda n: n.sg() == 'model-answer')
+    if not mo:
+        rep.err(sfile, so.line, 'solution "%s" is for a written item and has no model answer. Add <div class="model" data-sg="model-answer"><p>...</p></div>: the answer a top student would write, at the real length.' % fid)
+    else:
+        if 'model' not in mo.classes():
+            rep.err(sfile, mo.line, 'the model answer of "%s" needs class="model".' % fid)
+        if not mo.content():
+            rep.err(sfile, mo.line, 'the model answer of "%s" is empty.' % fid)
+    rb = so.find(lambda n: n.sg() == 'rubric')
+    if not rb:
+        rep.err(sfile, so.line, 'solution "%s" is for a written item and has no rubric. Add <ul class="rubric" data-sg="rubric"> with 2 to 5 <li data-marks="1"> points.' % fid)
+        return
+    if rb.tag not in ('ul', 'ol') or 'rubric' not in rb.classes():
+        rep.err(sfile, rb.line, 'the rubric of "%s" must be <ul class="rubric" data-sg="rubric">.' % fid)
+    pts = [li for li in rb.children if li.tag == 'li']
+    if len(pts) < 2:
+        rep.err(sfile, rb.line, 'the rubric of "%s" has %d point(s). Give at least 2 (2 to 5), each one thing a grader looks for.' % (fid, len(pts)))
+    elif len(pts) > 6:
+        rep.warn(sfile, rb.line, 'the rubric of "%s" has %d points. 2 to 5 is easier to mark against.' % (fid, len(pts)))
+    for li in pts:
+        mk = li.get('data-marks')
+        if mk is None:
+            rep.warn(sfile, li.line, 'a rubric point of "%s" has no data-marks. Say what it is worth, e.g. <li data-marks="1">.' % fid)
+            continue
+        try:
+            if float(mk) <= 0:
+                raise ValueError
+        except ValueError:
+            rep.err(sfile, li.line, 'a rubric point of "%s" has data-marks="%s". Use a positive number.' % (fid, mk))
+        if not li.content():
+            rep.err(sfile, li.line, 'a rubric point of "%s" is empty.' % fid)
 
 
 def check_guide(guide, allow_example=False, sources_dir=None, only=None):
@@ -583,7 +726,7 @@ def check_guide(guide, allow_example=False, sources_dir=None, only=None):
         ex = None
     if ex:
         unit_checks(rep, guide, {'file': ex['file'], 'id': 'exam'}, cfg, all_ids, allow_example, qids, sol_ids, exam=True)
-        question_checks(rep, guide, ex['questions'], ex['solutions'], cfg, all_ids, allow_example, qids, sol_ids, unit_ids, exam=True)
+        question_checks(rep, guide, ex['questions'], ex['solutions'], cfg, all_ids, allow_example, qids, sol_ids, unit_ids, exam=True, exam_only=bool(o.get('exam_only')))
     for i, fs in all_ids.items():
         if len(fs) > 1:
             rep.err(fs[0], 0, 'id "%s" is used more than once (%s). Ids must be unique across the guide.' % (i, ', '.join(sorted(set(fs)))))
@@ -625,6 +768,7 @@ def prose_words(raw):
     s = re.sub(r'<!--.*?-->', '', raw, flags=re.S)
     s = re.sub(r'<details.*?</details>', '', s, flags=re.S)
     s = re.sub(r'<table.*?</table>', '', s, flags=re.S)
+    s = PRE_RE.sub('', s)
     s = re.sub(r'\\\[.*?\\\]', '', s, flags=re.S)
     s = re.sub(r'\\\(.*?\\\)', '', s, flags=re.S)
     t = _h.unescape(re.sub(r'<[^>]+>', ' ', s))
