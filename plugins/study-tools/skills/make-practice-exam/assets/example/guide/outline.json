@@ -1,0 +1,14 @@
+{
+  "_about": "Made-up example of what make-practice-exam produces: an exam-only study guide. Build with the study-guide skill's build.py and --allow-example.",
+  "exam_only": true,
+  "units": [],
+  "exam": {
+    "file": "exam/exam.html",
+    "questions": "exam/exam.questions.html",
+    "solutions": "exam/exam.solutions.html"
+  },
+  "sources": [
+    {"path": "slides/econ101-lectures-01-08.pdf", "kind": "slides", "units": [], "use": "exam", "note": "units 1 to 4, the material the exam covers"},
+    {"path": "exams/midterm1-fall.pdf", "kind": "practice-exam", "units": [], "use": "exam-intel", "note": "last year's Midterm 1, taken already (open mode): format, points, difficulty and style"}
+  ]
+}

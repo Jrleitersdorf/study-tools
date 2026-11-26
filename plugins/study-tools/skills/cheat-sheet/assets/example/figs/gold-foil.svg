@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="220" viewBox="0 0 420 220" font-family="Helvetica, Arial, sans-serif">
+<rect width="420" height="220" fill="white"/>
+<rect x="20" y="90" width="60" height="40" rx="4" fill="#e9edf3" stroke="#1f3a5f"/>
+<text x="50" y="148" font-size="13" text-anchor="middle" fill="#333">alpha source</text>
+<rect x="205" y="40" width="8" height="140" fill="#d4a017"/>
+<text x="209" y="30" font-size="13" text-anchor="middle" fill="#333">gold foil</text>
+<path d="M 300 20 A 120 120 0 0 1 300 200" fill="none" stroke="#9aa5b5" stroke-width="6"/>
+<text x="345" y="110" font-size="13" text-anchor="middle" fill="#333">screen</text>
+<line x1="80" y1="98" x2="330" y2="94.4" stroke="#1f3a5f" stroke-width="1.6"/>
+<line x1="80" y1="106" x2="330" y2="104.8" stroke="#1f3a5f" stroke-width="1.6"/>
+<line x1="80" y1="114" x2="330" y2="115.2" stroke="#1f3a5f" stroke-width="1.6"/>
+<line x1="80" y1="122" x2="330" y2="125.6" stroke="#1f3a5f" stroke-width="1.6"/>
+<polyline points="80,106 209,108 300,40" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<polyline points="80,114 209,112 150,190" fill="none" stroke="#c0392b" stroke-width="1.8"/>
+<text x="250" y="212" font-size="12" text-anchor="middle" fill="#c0392b">a few bounce back: a small, dense nucleus</text>
+</svg>

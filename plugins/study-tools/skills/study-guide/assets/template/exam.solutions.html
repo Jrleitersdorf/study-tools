@@ -1,5 +1,7 @@
 <!-- PRACTICE EXAM WORKED SOLUTIONS TEMPLATE        copy to: <guide>/exam/exam.solutions.html
-     Same markup and rules as solutions.html, one block per exam question. MADE-UP EXAMPLE. -->
+     Same markup and rules as solutions.html, one block per exam question. A written item's block holds
+     a model answer and a rubric instead of steps (see exam_q7, a code question: the model answer
+     contains a code block; rubric marks add up to its data-points). MADE-UP EXAMPLE. -->
 <div class="sol" data-sg="solution" data-for="exam_q1">
   <p class="sol-h" data-sg="solution-heading">Worked solution</p>
   <ol class="ws" data-sg="solution-steps">
@@ -32,4 +34,20 @@
   <p class="sol-h" data-sg="solution-heading">Worked solution</p>
   <ol class="ws" data-sg="solution-steps"><li><b>Formula.</b> \(t_{1/2}=\ln2/\lambda\).</li><li><b>Substitute.</b> \(\ln2/1=\ln2\approx0.693\) days.</li></ol>
   <p class="sol-a" data-sg="solution-answer"><b>Answer:</b> \(\ln 2\approx0.693\) days</p>
+</div>
+<div class="sol" data-sg="solution" data-for="exam_q7">
+  <p class="sol-h" data-sg="solution-heading">Model answer</p>
+  <div class="model" data-sg="model-answer">
+    <p>Each half-life multiplies what is left by one half, and \(t/t_{1/2}\) half-lives have passed, so the fraction left is \((1/2)^{t/t_{1/2}}\).</p>
+    <pre class="code" data-sg="code-block"><code>def fraction_left(t, half_life):
+    return 0.5 ** (t / half_life)
+
+print(round(fraction_left(20, 8), 3))   # 0.177</code></pre>
+    <p>\(20/8=2.5\) half-lives, so the call returns \((1/2)^{2.5}\approx0.177\). Writing <code>math.exp(-math.log(2) * t / half_life)</code> is the same function.</p>
+  </div>
+  <ul class="rubric" data-sg="rubric">
+    <li data-marks="1">Uses the decay law: one half raised to the number of half-lives, or the equivalent exponential.</li>
+    <li data-marks="1">Divides the time by the half-life (not multiplying, and not subtracting), and returns the value rather than printing it.</li>
+    <li data-marks="1">Gives about 0.177 for <code>fraction_left(20, 8)</code>.</li>
+  </ul>
 </div>

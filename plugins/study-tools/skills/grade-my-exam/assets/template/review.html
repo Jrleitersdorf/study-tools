@@ -1,0 +1,120 @@
+<!-- =====================================================================================
+  review.html  (TEMPLATE, filled by scripts/build_review.py; never copy it into a review folder)
+
+  The review page is built from ONE data file, review.json, that the skill writes. build_review.py
+  validates it (plain-language errors), computes the score and the counts, embeds the images as
+  data URIs, inlines review.css and review.js, and writes one self-contained page. The page loads
+  MathJax 3.2.2 from cdnjs only when the data (or a later Claude answer) contains math.
+  Placeholders below: {{title}}, {{storage_key}}, {{css}}, {{data}}, {{js}}. This comment is
+  stripped from the built page.
+
+  A complete, working data file with one made-up example of every component is
+  assets/template/review.data.json; a finished non-STEM example is assets/example/review.json.
+
+  ---------------------------------------------------------------------------------------------
+  RICH TEXT. Every field marked (rt) is a string in a small markup:
+    blank line = new paragraph      "- item" or "1. item" lines = list      **bold**  *italic*
+    `inline code`                   ```python ... ``` fenced block = monospace code block
+    \( x \) inline math, \[ x \] display math (MathJax; write \frac{a}{b}, never a/b)
+  HTML is escaped, so < > & are safe anywhere. Example:
+    "The key is \\(\\frac{3}{4}\\).\n\n- First reason\n- Second reason"
+
+  IMAGE object: { "src": "img/q8.png", "alt": "what it shows", "caption": "optional" }
+    src is relative to review.json; png, jpg, gif, webp or svg. It is embedded in the page.
+
+  CODE object: { "code": "for i in range(3):\n    print(i)", "lang": "python" }
+
+  ---------------------------------------------------------------------------------------------
+  TOP LEVEL
+  meta {
+    title          Page and artifact name, 2 to 6 words: "ARTH 101 Quiz 3 Review".
+    course         "ARTH-UA 101, Introduction to Art History" (used in the Ask prompts).
+    subject        One or two words: "art history". Ask answers out-of-scope questions from it.
+    exam           "Quiz 3 (practice)". Shown as the page heading.
+    kind           "practice" (Claude graded it) or "graded" (a real exam the instructor marked:
+                   the instructor's marks are the truth, so every "earned" is a plain number).
+    taken          "2026-11-20" (optional). time { "used_min": 38, "limit_min": 45 } (optional).
+    key_source     Who decided the right answers, shown under the score:
+                   "the instructor's answer key" / "Claude's key (no key was supplied)" /
+                   "the instructor's marks".
+    credit_rules   List of strings, the real rules applied: "Select-all items are all-or-nothing."
+    exam_mode      "open" (default) or "blind": blind if the student will retake this exam as a
+                   test; then lesson examples must not resemble its questions (the build checks).
+    storage_key    Unique, lowercase letters, digits, hyphens: "arth101-quiz3-review".
+    student_name   Optional; empty means the Ask prompts say "the student".
+    intro          (rt, optional) One or two sentences under the heading.
+    notes          List of (rt), optional: anything the student must know (an assumed rule, an
+                   unreadable answer they confirmed, a disagreement with the key).
+  }
+  units   [ { "id": "u1", "name": "Perspective" } ]                  topics, for the breakdown
+  habits  [ { "id": "h1", "name": "Incomplete select-all answers",    gap patterns, named as
+              "what": "(rt) one sentence: what goes wrong" } ]        habits, not as topics
+  questions [ QUESTION, ... ]   in exam order
+  lessons   [ LESSON, ... ]     5 to 16, ordered: the habit that costs most points first
+  fixes     [ (rt), ... ]       3 to 8 "Habits that fix most of these", one sentence each
+
+  QUESTION {
+    id        The number on the exam, as a string: "7", "4b". Ask accepts it as a target.
+    type      mc | multi | tf | num | written         (exam-format.md section 6)
+    format    Display label, optional: "Identification", "Essay", "True/false with justification".
+    points    Points on the exam (number).
+    unit      A unit id, or a list of unit ids.       habits  [habit ids] (empty when right)
+    prompt    (rt) The question as on the exam, self-contained. image IMAGE (optional).
+    options   mc and multi: [ { "key": "A", "text": "(rt)" } ]; tf: omit (True/False is added).
+    answer    What the student gave:
+                mc / tf   { "choice": "B", "text": "(rt) justification, if any" }
+                multi     { "choice": ["A", "D"] }
+                num       { "value": "0.25", "text": "(rt) their work, optional" }
+                written   { "text": "(rt)", "code": CODE, "image": IMAGE }  (any of the three)
+              { "blank": true } for an unanswered question.
+    correct   The key, same shape: { "choice": "A" }, { "choice": ["A","B","D"] },
+              { "value": 0.25, "tolerance": 0.005 }, { "text": "(rt) model answer", "code": CODE }.
+    verdict   right | partial | wrong | blank
+    earned    Exact or instructor-marked: a number (2). Claude's estimate of written work:
+              { "low": 1, "likely": 2, "high": 3 }. The page labels estimates as estimates.
+    verdict_reason (rt, optional) Why the verdict differs from a plain match (a credit rule).
+    confidence  solid | unsure | guessed (from the student's notes; default solid).
+    student_note  The student's own note, verbatim: "guessed between B and D".
+    explanation (rt) Two or three sentences of the correct reasoning. Always present.
+    rubric    written only: [ { "point": "(rt)", "marks": 2, "got": 1, "comment": "(rt)" } ];
+              marks add up to points; got adds up to earned (or to earned.likely).
+    key_dispute (rt, optional) Claude's independent solution disagrees with the key: say how.
+    walkthrough Required for every miss (verdict not right) and every guessed answer:
+              { "think": "(rt) how to think about it", "steps": ["(rt)", ...],
+                "answer": "(rt)", "trap": "(rt)" }
+  }
+  LESSON {
+    id "L1"   title "Judge every option of a select-all on its own"
+    habits [habit ids]   questions [question ids it fixes]
+    idea  (rt) the idea, 2 to 4 sentences       how (rt) how to think about this kind of question
+    example { "prompt": "(rt) a NEW question", "solution": "(rt)" }   trap (rt) the trap
+  }
+  ===================================================================================== -->
+<title>{{title}}</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<script>try{var t=localStorage.getItem("{{storage_key}}-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-review-theme",t);}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,400&display=swap">
+<style>
+{{css}}
+</style>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><b id="top-title"></b><span id="top-sub"></span></div>
+    <nav class="tabs" aria-label="Views">
+      <a href="#answers" data-view="answers">Your answers<span class="n" id="n-answers"></span></a>
+      <a href="#lessons" data-view="lessons">Lessons<span class="n" id="n-lessons"></span></a>
+    </nav>
+    <div class="themesw" role="group" aria-label="Theme"><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></div>
+  </div>
+</header>
+<main class="wrap" id="app">
+  <section class="sum" id="summary" aria-label="Score"></section>
+  <section class="view" id="view-answers" data-view="answers" aria-label="Your answers"></section>
+  <section class="view" id="view-lessons" data-view="lessons" aria-label="Lessons" hidden></section>
+</main>
+<script type="application/json" id="review-data">{{data}}</script>
+<script>
+{{js}}
+</script>

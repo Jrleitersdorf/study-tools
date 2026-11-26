@@ -1,0 +1,38 @@
+% Section 3: Simulating decay.
+
+\cstopic{3.1}{A Monte Carlo decay simulation}{Lab 2; L6 pp.5--9}
+\takeaway{This topic covers the lab's simulation: give each nucleus a fixed chance \(p\) of decaying in each time step, repeat, and count the survivors. Its average follows the decay law, with \(p\) playing the role of \(\lambda\) times the step length; small samples scatter around the curve.}
+
+\begin{codeblock}[language=Python]
+import random
+
+def simulate(n0, p, steps):
+    left, counts = n0, [n0]
+    for _ in range(steps):
+        decayed = sum(1 for _ in range(left) if random.random() < p)
+        left -= decayed
+        counts.append(left)
+    return counts
+\end{codeblock}
+
+\begin{keybox}{What the code computes}
+\keyeq[The expected number left after \(k\) steps, and the half-life in steps that it implies.]{%
+\mathbb{E}[N_k] = N_0\,(1-p)^k \\[4pt]
+k_{1/2} = \frac{\ln 2}{-\ln(1-p)} \approx \frac{\ln 2}{p}}
+\begin{symbols}
+\(p\) & chance that one nucleus decays in one step (the \texttt{p} argument)\\
+\(k\); \(N_k\) & step number; nuclei left after step \(k\) (\texttt{counts[k]})\\
+\end{symbols}
+\means{each step multiplies the expected count by \(1-p\), the discrete version of \(e^{-\lambda t}\).}
+\end{keybox}
+
+\begin{changetable}
+raise \texttt{p} & faster decay, shorter half-life & each step removes a larger share\\
+raise \texttt{n0} & smoother curve, same half-life & random scatter shrinks like \(\frac{1}{\sqrt{N_0}}\)\\
+more \texttt{steps} & longer run, same curve & the law does not depend on how long you watch\\
+\end{changetable}
+
+\begin{tfbox}
+\tf{F}{Running the simulation twice with the same inputs gives the same counts.}{It is random unless the seed is fixed.}
+\tf{T}{With \texttt{p = 0.5}, about half the nuclei are left after one step.}{\((1-0.5)^1=\frac{1}{2}\).}
+\end{tfbox}

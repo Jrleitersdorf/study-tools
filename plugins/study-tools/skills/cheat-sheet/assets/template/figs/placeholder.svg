@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200" font-family="Helvetica, Arial, sans-serif">
+<rect width="300" height="200" fill="white"/>
+<rect x="10" y="10" width="280" height="180" rx="8" fill="#f3f5f8" stroke="#1f3a5f" stroke-width="1.5" stroke-dasharray="6,4"/>
+<text x="150" y="96" font-size="15" text-anchor="middle" fill="#1f3a5f">a figure cropped from the slides,</text>
+<text x="150" y="118" font-size="15" text-anchor="middle" fill="#1f3a5f">or a diagram drawn as SVG</text>
+</svg>

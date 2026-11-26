@@ -11,7 +11,14 @@
       "source": "./plugins/study-tools",
       "description": "Study tools that turn your course material into ways to learn it and prepare for exams.",
       "category": "education",
-      "tags": ["study guide", "exam prep", "practice questions", "practice exam"]
+      "tags": [
+        "study guide",
+        "exam prep",
+        "practice questions",
+        "practice exam",
+        "cheat sheet",
+        "exam grading"
+      ]
     }
   ]
 }

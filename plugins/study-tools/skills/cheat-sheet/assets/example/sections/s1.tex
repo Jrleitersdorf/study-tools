@@ -1,0 +1,70 @@
+% Section 1: Radioactive decay. build.py writes the section heading from sheet.json; this file starts with its first topic.
+
+\cstopic{1.1}{The decay law and half-life}{L1 pp.3--11; L2 pp.1--4}
+\takeaway{This topic covers how a sample of unstable nuclei shrinks over time. Each nucleus decays at random with the same small chance per second, so the number left falls exponentially and halves every half-life, whatever the starting amount. Use it to find how much is left, or how long it took.}
+
+Every nucleus has the same chance per second of decaying, \(\lambda\), however long it has already survived. That single fact gives the exponential law in the box.
+
+\begin{keybox}{Decay law and half-life}
+\keyeq[Line 1: the number of undecayed nuclei after time \(t\). Line 2: the half-life, the time for any amount to halve. Line 3: the same law counted in half-lives.]{%
+N(t) = N_0\, e^{-\lambda t} \\[4pt]
+t_{1/2} = \frac{\ln 2}{\lambda} \\[4pt]
+\frac{N(t)}{N_0} = \left(\frac{1}{2}\right)^{t/t_{1/2}}}
+\begin{symbols}
+\(N(t)\); \(N_0\) & undecayed nuclei at time \(t\); at the start (\(t=0\))\\
+\(\lambda\) & decay constant: chance per second that one nucleus decays (s\(^{-1}\))\\
+\(t_{1/2}\) & half-life, in the same time unit as \(t\)\\
+\end{symbols}
+\means{the fraction left depends only on how many half-lives have passed, never on \(N_0\).}
+\nuance{for one nucleus the law gives only a probability, never the moment it decays.}
+\end{keybox}
+
+\sheetfig[0.4]{figs/decay-curve.pdf}{Each half-life halves what is left, so after \(n\) half-lives \(\frac{1}{2^n}\) remains. The curve never reaches zero.}
+
+\example{a sample has \(t_{1/2}=10\) min. After 30 min, \(\frac{30}{10}=3\) half-lives have passed, so \(\left(\frac{1}{2}\right)^3=\frac{1}{8}\) of it is left.}
+
+\begin{changetable}
+double the starting amount \(N_0\) & twice as many left at every time & the fraction left is unchanged\\
+double \(\lambda\) & half-life halves; decays twice as fast & \(t_{1/2}=\frac{\ln 2}{\lambda}\)\\
+heat or compress the sample & no change & decay is nuclear; heat and pressure do not reach it\\
+\end{changetable}
+
+\begin{tfbox}
+\tf{F}{After two half-lives the sample is gone.}{A quarter is left.}
+\tf{F}{An isotope with a longer half-life has a larger \(\lambda\).}{\(\lambda=\frac{\ln 2}{t_{1/2}}\), so it is smaller.}
+\end{tfbox}
+
+\cstopic{1.2}{Activity and radiometric dating}{L3 pp.2--12}
+\takeaway{This topic covers activity, the decay rate a detector measures, and how comparing today's activity with the starting activity dates a sample. Activity falls with the same half-life as the number of nuclei, so the ratio of activities gives the number of half-lives, and so the age.}
+
+\begin{keybox}{Activity and age}
+\keyeq[Line 1: activity is proportional to the nuclei left, so it decays the same way. Line 2: solve for the age \(t\) from the measured ratio of activities.]{%
+A = \lambda N = A_0\, e^{-\lambda t} \\[4pt]
+t = \frac{t_{1/2}}{\ln 2}\,\ln\!\left(\frac{A_0}{A}\right)}
+\begin{symbols}
+\(A\); \(A_0\) & activity now; activity when the clock started (decays per second, Bq)\\
+\(t\) & age of the sample: time since the clock started\\
+\end{symbols}
+\means{a sample whose activity is \(\frac{1}{4}\) of the starting value is two half-lives old.}
+\end{keybox}
+
+\begin{worked}{Worked example: carbon dating a bone}
+\sidebyside[0.44]{%
+\small A bone's carbon-14 activity is \(\frac{1}{8}\) of a living sample's. The half-life of carbon-14 is 5{,}730 years.\par
+\medskip\textbf{Plan:} count half-lives from the ratio, then multiply.}{%
+\small
+\begin{enumerate}[leftmargin=1.4em]
+\item Ratio: \(\frac{A}{A_0}=\frac{1}{8}=\left(\frac{1}{2}\right)^3\), so \(n=3\) half-lives.
+\item Age: \(t = n\,t_{1/2} = 3 \times 5{,}730\).
+\item Answer: \(t = 17{,}190\) years.
+\end{enumerate}}
+\end{worked}
+
+\begin{trap}{Which clock starts when}
+Carbon dating measures time since the organism died, when it stopped taking in carbon-14, not since it was born. Dating rock with uranium measures time since the rock solidified.
+\end{trap}
+
+\begin{tfbox}
+\tf{T}{A sample's activity falls with the same half-life as its number of nuclei.}{\(A=\lambda N\) with \(\lambda\) fixed.}
+\tf{F}{Carbon-14 can date a 10-million-year-old fossil.}{After about 10 half-lives too little is left to measure.}
+\end{tfbox}

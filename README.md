@@ -9,6 +9,9 @@ The plugin will grow over time. Each tool is its own skill, so new ones can be a
 | Skill | What it does |
 | :- | :- |
 | `study-guide` | Turns your course material into an interactive study guide with one page per lecture or topic, practice questions with worked solutions, a practice exam, and Ask and Solve-it-for-me buttons powered by Claude. |
+| `cheat-sheet` | Builds a printable cheat sheet PDF from your course material, cut down to what the exam asks and organized so you can find anything in seconds, with diagrams, worked examples and true-or-false checks. It fits whatever your exam allows, from an open-book reference to one dense page. |
+| `make-practice-exam` | Writes a practice exam that copies the structure of your real one: the kinds of questions, how hard they are, what the answers look like, the points, the time and what it covers. Take it on screen with a timer and grading, or print it with an answer key. |
+| `grade-my-exam` | Grades a practice exam you took on your own from photos, scans or a list of answers, finds the patterns behind what you missed, and builds a review page that teaches exactly those gaps. |
 
 ## Install
 
@@ -35,11 +38,15 @@ What changed in each version is in [CHANGELOG.md](CHANGELOG.md).
 
 ## Use
 
-Type `/study-guide` in a chat, or ask Claude to make a study guide for your class. Claude asks you to upload your course material (slides, notes, transcripts, readings, homework, past exams and anything your instructor said about the exam), agrees the structure of the guide with you, and then builds it one unit at a time.
+Type the skill's name in a chat (`/study-guide`, `/cheat-sheet`, `/make-practice-exam`, `/grade-my-exam`), or just ask for what you want: a study guide, a cheat sheet, a practice exam, or "grade my practice test". Claude asks you to upload your course material (slides, notes, transcripts, readings, homework, past exams and anything your instructor said about the exam).
 
-The finished guide is published as a Claude artifact, which you can open on any device. Ask and Solve it for me only work in the published artifact, because they call Claude from inside the page.
+If you have a practice exam, a past exam or sample questions, share them. Every tool uses them to match the real exam's format and difficulty. If there is one you want to take blind later, say so, and Claude will only use its structure.
 
-More detail on what the guide contains and how it is built is in the [plugin's README](plugins/study-tools/README.md).
+The tools share what they learn about a class. Claude reads your material once into a course pack, and the cheat sheet, the practice exams and the grading reuse it, along with the topics you keep missing.
+
+Study guides, practice exams and exam reviews are published as Claude artifacts, which you can open on any device. Ask, Solve it for me and feedback on written answers only work in the published artifact, because they call Claude from inside the page.
+
+More detail on each tool is in the [plugin's README](plugins/study-tools/README.md).
 
 ## Repository layout
 
@@ -47,7 +54,9 @@ More detail on what the guide contains and how it is built is in the [plugin's R
 .claude-plugin/marketplace.json   the catalog Claude reads when you add this marketplace
 plugins/study-tools/              the plugin itself
   .claude-plugin/plugin.json      name, version and metadata
-  skills/study-guide/             the study-guide skill, its references, template and scripts
+  skills/<skill>/                 each skill: SKILL.md, references, assets and scripts
+shared/references/                rules every skill uses (exam format, course pack), copied into each skill
+scripts/sync_shared.py            copies shared/references into the skills; --check fails if a copy is stale
 ```
 
 ## Feedback

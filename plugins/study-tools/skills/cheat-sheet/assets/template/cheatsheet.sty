@@ -1,0 +1,303 @@
+% =====================================================================================
+%  cheatsheet.sty: the study-tools cheat sheet design (ENGINE FILE: do not edit per sheet)
+%  -------------------------------------------------------------------------------------
+%  build.py writes main.tex, which loads this package. Sheets are written ONLY with the
+%  commands below; every command is documented in references/template-reference.md, and
+%  assets/template/sections/s1.tex shows one made-up example of each.
+%
+%  Structure     \cssection{num}{title}{tab label}{one grey line: what the section covers}
+%                \cstopic{num}{title}{source pointers}      (a topic is never split across
+%                                                           pages when it fits on one; build.py
+%                                                           enforces this)
+%                \allowsplit                                after \cstopic: this topic may break
+%                \takeaway{text}
+%  Key boxes     \begin{keybox}{title} ... \end{keybox}     titled box, listed in the contents
+%                  \keyeq[note on the left]{display math, one formula per line, \\ between}
+%                  \begin{symbols} symbol & meaning \\ ... \end{symbols}
+%                  \means{text}   \nuance{text}   \defn{term}{definition}
+%                \begin{factcard}{title}[image][image width] \fact{label}{text} ... \end{factcard}
+%  Tables        \begin{changetable}[title][col 1][col 2][col 3] a & b & c \\ ... \end{changetable}
+%                \begin{tablebox}{title}{tabularx column spec} ...rows... \end{tablebox}
+%  Checks        \begin{tfbox} \tf{T}{statement}{why} ... \end{tfbox}
+%                \begin{trap}{title} text \end{trap}
+%  Examples      \example{text}
+%                \begin{worked}{title} ... \end{worked}     \sidebyside[left width]{left}{right}
+%  Figures, code \sheetfig[width as fraction of the line]{file}{caption}
+%                \begin{codeblock}[listings options] code \end{codeblock}
+%  Starred keybox*, factcard*, changetable*, tablebox*, worked* are left out of the contents.
+% =====================================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{cheatsheet}[2026/11/22 study-tools cheat sheet]
+
+\newif\ifcs@dense
+\DeclareOption{dense}{\cs@densetrue}
+\ProcessOptions\relax
+
+\RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
+\RequirePackage{microtype}
+\RequirePackage{amsmath,amssymb,mathtools,bm}
+\RequirePackage{xcolor}
+\RequirePackage{graphicx}
+\RequirePackage{array,tabularx,booktabs}
+\RequirePackage{enumitem}
+\RequirePackage{fancyhdr}
+\RequirePackage{needspace}
+\RequirePackage{eso-pic}
+\RequirePackage{multicol}
+\RequirePackage{xparse}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{listings}
+\RequirePackage{upquote}
+\RequirePackage[hidelinks]{hyperref}
+
+% ---------- colors ----------
+\definecolor{cshead}{RGB}{31,58,95}
+\definecolor{csmut}{RGB}{110,118,132}
+\definecolor{csrule}{RGB}{196,204,216}
+\definecolor{csboxbg}{RGB}{246,247,250}
+\definecolor{csboxfr}{RGB}{200,208,220}
+\definecolor{cstitlebg}{RGB}{233,237,243}
+\definecolor{csnote}{RGB}{52,84,138}
+\definecolor{cstakebg}{RGB}{243,244,246}
+\definecolor{cstfbg}{RGB}{238,245,240}
+\definecolor{cstffr}{RGB}{188,212,194}
+\definecolor{cstftitle}{RGB}{225,237,228}
+\definecolor{cstfT}{RGB}{38,120,62}
+\definecolor{cstfF}{RGB}{176,38,38}
+\definecolor{cstrapbg}{RGB}{252,246,234}
+\definecolor{cstrapfr}{RGB}{226,205,160}
+\definecolor{cscodebg}{RGB}{245,246,248}
+
+% ---------- page and text ----------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\linespread{1.04}
+\setlist{nosep,leftmargin=1.3em}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.12}
+\allowdisplaybreaks[1]
+\frenchspacing
+
+% ---------- sheet settings (set by build.py in main.tex) ----------
+\def\cs@title{Cheat Sheet}
+\def\cs@course{}
+\def\cs@scope{}
+\def\cs@headerleft{}
+\newcommand{\SheetTitle}[1]{\def\cs@title{#1}\hypersetup{pdftitle={#1}}}
+\newcommand{\SheetCourse}[1]{\def\cs@course{#1}}
+\newcommand{\SheetScope}[1]{\def\cs@scope{#1}}
+\newcommand{\SheetHeader}[1]{\def\cs@headerleft{#1}}
+
+% ---------- header and footer ----------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{\color{csmut}\small\cs@headerleft}
+\fancyhead[R]{\small\color{cshead}\bfseries\rightmark}
+\fancyfoot[C]{\small\thepage}
+\fancypagestyle{cscover}{\fancyhf{}\fancyfoot[C]{\small\thepage}}
+
+% ---------- side tabs: one per section, at a different height for each ----------
+\def\cs@tabtext{}
+\def\cs@tabindex{0}
+\newlength{\cs@tabw}\setlength{\cs@tabw}{0.42in}
+\newlength{\cs@tabh}\setlength{\cs@tabh}{1.3in}
+\newcommand{\cs@drawtab}{%
+  \ifx\cs@tabtext\@empty\else
+    \begingroup
+    \@tempcnta=\cs@tabindex\relax \advance\@tempcnta by -1\relax
+    \@tempcntb=\@tempcnta \divide\@tempcntb by 6 \multiply\@tempcntb by 6 \advance\@tempcnta by -\@tempcntb
+    \dimen@=\dimexpr 1.45in+\@tempcnta\cs@tabh+\@tempcnta\dimexpr 0.08in\relax\relax
+    \put(\LenToUnit{\paperwidth-\cs@tabw},\LenToUnit{\paperheight-\dimen@-\cs@tabh}){%
+      \color{cshead}\rule{\cs@tabw}{\cs@tabh}}%
+    \put(\LenToUnit{\paperwidth-0.5\cs@tabw},\LenToUnit{\paperheight-\dimen@-0.5\cs@tabh}){%
+      \makebox(0,0){\rotatebox{-90}{\color{white}\bfseries\footnotesize\cs@tabtext}}}%
+    \endgroup
+  \fi}
+\ifcs@dense\else\AddToShipoutPictureBG{\cs@drawtab}\fi
+
+% ---------- topic position markers (read by build.py to keep topics on one page) ----------
+\newwrite\cs@posfile
+\immediate\openout\cs@posfile=\jobname.pos
+\AtBeginDocument{%
+  \immediate\write\cs@posfile{geom \number\textheight\space\number\dimexpr\paperheight-1in-\voffset-\topmargin-\headheight-\headsep-\textheight\relax}}
+\newcommand{\cs@mark}[1]{\pdfsavepos\write\cs@posfile{#1 \the\ReadonlyShipoutCounter\space\the\pdflastypos}}
+\def\cs@opentopic{}
+\newcommand{\cs@endtopic}{%
+  \ifx\cs@opentopic\@empty\else
+    \par\edef\cs@tmp{\noexpand\cs@mark{end \cs@opentopic}}\cs@tmp\gdef\cs@opentopic{}%
+  \fi}
+\AtEndDocument{\cs@endtopic}
+\newcommand{\allowsplit}{\immediate\write\cs@posfile{split \cs@opentopic}}
+
+% ---------- contents ----------
+\newif\ifcs@firstbox
+\newcommand{\cs@toc}[1]{\protected@write\@auxout{}{\string\@writefile{cst}{#1}}}
+\newcommand{\cstocsec}[4]{%
+  \par\normalsize\color{black}\addvspace{9pt}%
+  \noindent\hyperlink{#4}{\colorbox{cshead}{\color{white}\bfseries\footnotesize\strut\,#1\,}\hspace{0.5em}%
+  \parbox[t]{\dimexpr\linewidth-2.6em\relax}{\raggedright\color{cshead}\bfseries #2\hfill\mbox{#3}}}\par\vspace{2pt}}
+\newcommand{\cstoctopic}[4]{%
+  \par\normalsize\color{black}\addvspace{2pt}%
+  \noindent\hangindent=1.8em\hyperlink{#4}{\makebox[1.8em][l]{\color{cshead}#1}#2}\nobreak
+  \leaders\hbox to 0.5em{\hss.\hss}\hfill\nobreak\mbox{\hyperlink{#4}{#3}}\par
+  \global\cs@firstboxtrue}
+\newcommand{\cstocbox}[1]{%
+  \ifcs@firstbox
+    \footnotesize\color{csmut}\noindent\hangindent=1.8em\hspace*{1.8em}#1%
+    \global\cs@firstboxfalse
+  \else
+    \ \textperiodcentered\ #1%
+  \fi}
+\newcommand{\cs@boxtoc}[1]{\cs@toc{\protect\cstocbox{#1}}}
+\newcommand{\cscontents}{%
+  {\color{cshead}\bfseries\Large Contents\par}\vspace{6pt}%
+  \begin{multicols}{2}\raggedcolumns\small\@starttoc{cst}\par\end{multicols}}
+
+% ---------- cover ----------
+\newcommand{\cscover}[1]{%
+  \thispagestyle{cscover}%
+  {\color{cshead}\bfseries\fontsize{26}{30}\selectfont\cs@title\par}\vspace{6pt}%
+  {\large\cs@course\par}\vspace{3pt}%
+  \ifx\cs@scope\@empty\else{\color{csmut}\cs@scope\par}\fi
+  \vspace{4pt}{\color{csrule}\hrule}\vspace{8pt}%
+  #1\par\vspace{10pt}%
+  \ifcs@dense\else\cscontents\fi}
+
+% ---------- sections and topics ----------
+\newcounter{cssec}
+\newcommand{\cssection}[4]{%
+  \cs@endtopic
+  \ifcs@dense\par\addvspace{8pt}\else\clearpage\fi
+  \stepcounter{cssec}%
+  \xdef\cs@tabindex{\arabic{cssec}}%
+  \gdef\cs@tabtext{#1\quad #3}%
+  \markright{#1\quad #2}%
+  \phantomsection\hypertarget{sec-#1}{}%
+  \cs@toc{\protect\cstocsec{#1}{#2}{\thepage}{sec-#1}}%
+  \ifcs@dense
+    {\color{cshead}\bfseries\normalsize #1\quad #2\par}%
+  \else
+    {\color{cshead}\bfseries\fontsize{19}{23}\selectfont #1\quad #2\par}\vspace{3pt}%
+    \ifx\relax#4\relax\else{\color{csmut}\small #4\par}\fi
+    \vspace{3pt}{\color{csrule}\hrule}\vspace{6pt}%
+  \fi}
+\newcommand{\cstopic}[3]{%
+  \cs@endtopic
+  \ifcsname cs@brk@#1\endcsname\clearpage\else\cs@needspace{10\baselineskip}\fi
+  \par\cs@mark{start #1}\gdef\cs@opentopic{#1}%
+  \markright{#1\quad #2}%
+  \phantomsection\hypertarget{topic-#1}{}%
+  \cs@toc{\protect\cstoctopic{#1}{#2}{\thepage}{topic-#1}}%
+  \ifcs@dense
+    {\color{cshead}\bfseries\small #1\enspace #2\par}%
+  \else
+    \addvspace{6pt}%
+    \noindent{\color{cshead}\bfseries\Large #1\quad #2}\hfill{\color{csmut}\small #3}\par\vspace{4pt}%
+  \fi}
+% like \needspace, but without its -100 penalty, which with a ragged bottom becomes the
+% preferred page break and strands section headings alone on a page
+\newcommand{\cs@needspace}[1]{\par\begingroup\dimen@=\pagegoal\advance\dimen@-\pagetotal
+  \ifdim\pagegoal<\maxdimen\ifdim\dimen@<#1\relax\newpage\fi\fi\endgroup}
+\newcommand{\breakbefore}[1]{\expandafter\gdef\csname cs@brk@#1\endcsname{}}
+
+% ---------- takeaway ----------
+\newtcolorbox{cs@take}{enhanced,frame hidden,colback=cstakebg,boxrule=0pt,arc=0pt,
+  borderline west={2.6pt}{0pt}{cshead},left=9pt,right=8pt,top=5pt,bottom=5pt,
+  before skip=4pt,after skip=7pt,breakable}
+\newcommand{\takeaway}[1]{\begin{cs@take}\textbf{\color{cshead}Takeaway:} #1\end{cs@take}}
+
+% ---------- boxes ----------
+\tcbset{cs/base/.style={enhanced,colback=csboxbg,colframe=csboxfr,boxrule=0.5pt,arc=3pt,
+    left=8pt,right=8pt,top=5pt,bottom=5pt,before skip=6pt,after skip=7pt,
+    fonttitle=\bfseries\small,coltitle=cshead,colbacktitle=cstitlebg,
+    toptitle=2pt,bottomtitle=2pt,lefttitle=8pt},
+  cs/dense/.style={left=4pt,right=4pt,top=2pt,bottom=2pt,before skip=3pt,after skip=3pt,
+    toptitle=1pt,bottomtitle=1pt,lefttitle=4pt,fonttitle=\bfseries\footnotesize}}
+\ifcs@dense\tcbset{cs/base/.append style={cs/dense}}\fi
+
+\NewDocumentEnvironment{keybox}{s m O{}}{%
+  \IfBooleanF{#1}{\cs@boxtoc{#2}}%
+  \begin{tcolorbox}[cs/base,title={#2},#3]}{\end{tcolorbox}}
+
+\NewDocumentCommand{\keyeq}{+o +m}{%
+  \par\IfNoValueTF{#1}{%
+    \begin{center}$\displaystyle\begin{gathered}#2\end{gathered}$\end{center}}{%
+    \vspace{2pt}\noindent\begin{minipage}[c]{0.36\linewidth}\raggedright\small\itshape\color{csnote}#1\end{minipage}%
+    \hfill\begin{minipage}[c]{0.6\linewidth}\centering$\displaystyle\begin{gathered}#2\end{gathered}$\end{minipage}\par\vspace{4pt}}}
+
+\NewDocumentEnvironment{symbols}{+b}{\par\small\noindent\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.26\linewidth}X@{}}#1\end{tabularx}\par}{}
+\newcommand{\means}[1]{\par\textbf{\color{cshead}Means:} #1\par}
+\newcommand{\nuance}[1]{\par\textbf{\color{cshead}Nuance:} #1\par}
+\newcommand{\defn}[2]{\par\noindent\hangindent=1em\textbf{#1}\quad #2\par}
+
+\NewDocumentEnvironment{factcard}{s m o O{0.3} +b}{%
+  \IfBooleanF{#1}{\cs@boxtoc{#2}}%
+  \begin{tcolorbox}[cs/base,title={#2}]%
+  \renewcommand{\fact}[2]{\textbf{##1} & ##2\\}%
+  \IfNoValueTF{#3}{%
+    \noindent\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.2\linewidth}>{\raggedright\arraybackslash}p{\dimexpr0.8\linewidth-2\tabcolsep\relax}@{}}#5\end{tabular}}{%
+    \noindent\begin{minipage}[t]{#4\linewidth}\vspace{0pt}\centering\includegraphics[width=\linewidth]{#3}\end{minipage}\hfill
+    \begin{minipage}[t]{\dimexpr\linewidth-#4\linewidth-10pt\relax}\vspace{0pt}%
+      \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.28\linewidth}>{\raggedright\arraybackslash}p{\dimexpr0.72\linewidth-2\tabcolsep\relax}@{}}#5\end{tabular}\end{minipage}}%
+  \end{tcolorbox}}{}
+\newcommand{\fact}[2]{\textbf{#1}\quad #2\par}
+
+\NewDocumentEnvironment{changetable}{s O{If you change it} O{Change} O{Effect} O{Why} +b}{%
+  \IfBooleanF{#1}{\cs@boxtoc{#2}}%
+  \begin{tcolorbox}[cs/base,colback=white,title={#2}]\small\noindent
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{\dimexpr0.29\linewidth-\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr0.38\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr0.33\linewidth-\tabcolsep\relax}@{}}
+  \toprule\textbf{#3} & \textbf{#4} & \textbf{#5}\\\midrule #6\bottomrule\end{tabular}
+  \end{tcolorbox}}{}
+
+% tablebox: write the rows yourself, with \toprule, \midrule and \bottomrule
+\NewDocumentEnvironment{tablebox}{s m m +b}{%
+  \IfBooleanF{#1}{\cs@boxtoc{#2}}%
+  \begin{tcolorbox}[cs/base,colback=white,title={#2}]\small\noindent
+  \begin{tabularx}{\linewidth}{#3}#4\end{tabularx}%
+  \end{tcolorbox}}{}
+
+\newtcolorbox{cs@tf}[1]{cs/base,colback=cstfbg,colframe=cstffr,colbacktitle=cstftitle,coltitle=cstfT!70!black,title={#1}}
+\NewDocumentEnvironment{tfbox}{O{True or false}}{\begin{cs@tf}{#1}\small}{\end{cs@tf}}
+\newcommand{\tf}[3]{\par\noindent\hangindent=1.6em\makebox[1.6em][l]{\bfseries\if T#1\color{cstfT}T\else\color{cstfF}F\fi}#2 {\color{csmut}\itshape #3}\par}
+
+\NewDocumentEnvironment{trap}{m}{%
+  \begin{tcolorbox}[enhanced,colback=cstrapbg,colframe=cstrapfr,boxrule=0.5pt,arc=3pt,
+    left=8pt,right=8pt,top=5pt,bottom=5pt,before skip=6pt,after skip=7pt]\small\textbf{#1:}\ }{\end{tcolorbox}}
+
+\newcommand{\example}[1]{\par\textbf{\color{cshead}Example:} #1\par}
+
+\NewDocumentEnvironment{worked}{s m}{%
+  \IfBooleanF{#1}{\cs@boxtoc{#2}}%
+  \begin{tcolorbox}[cs/base,colback=white,title={#2},breakable]}{\end{tcolorbox}}
+\NewDocumentCommand{\sidebyside}{O{0.48} +m +m}{%
+  \par\noindent\begin{minipage}[c]{#1\linewidth}#2\end{minipage}\hfill
+  \begin{minipage}[c]{\dimexpr0.97\linewidth-#1\linewidth\relax}#3\end{minipage}\par}
+
+% ---------- figures ----------
+\NewDocumentCommand{\sheetfig}{O{0.6} m m}{%
+  \par\begin{center}\includegraphics[width=#1\linewidth]{#2}\par\vspace{2pt}%
+  \ifx\relax#3\relax\else{\color{csmut}\footnotesize #3\par}\fi\end{center}\vspace{-4pt}}
+
+% ---------- code ----------
+\lstdefinestyle{cs}{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,
+  backgroundcolor=\color{cscodebg},frame=single,rulecolor=\color{csboxfr},framesep=4pt,
+  xleftmargin=4pt,xrightmargin=4pt,breaklines=true,showstringspaces=false,tabsize=4,
+  commentstyle=\color{csmut}\itshape,keywordstyle=\color{cshead}\bfseries,
+  numbers=none,aboveskip=6pt,belowskip=6pt}
+\lstnewenvironment{codeblock}[1][]{\lstset{style=cs,#1}}{}
+
+% ---------- dense layout (a page or two allowed): smaller type, three columns ----------
+\ifcs@dense
+  \setlength{\parskip}{2pt}
+  \fancyhf{}\fancyfoot[C]{\scriptsize\thepage}
+  \AtBeginDocument{\footnotesize\setlength{\columnsep}{10pt}\setlength{\columnseprule}{0.2pt}}
+  \RenewDocumentCommand{\keyeq}{+o +m}{%
+    \par\begin{center}$\displaystyle\begin{gathered}#2\end{gathered}$\end{center}%
+    \IfNoValueF{#1}{{\scriptsize\itshape\color{csnote}#1\par}}}
+  \renewcommand{\cscover}[1]{%
+    {\color{cshead}\bfseries\small\cs@title\par}{\color{csmut}\scriptsize\cs@course\par}%
+    \ifx\relax#1\relax\else{\scriptsize #1\par}\fi\vspace{2pt}{\color{csrule}\hrule}\vspace{3pt}}
+\fi
+\endinput

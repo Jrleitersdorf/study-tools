@@ -1,11 +1,21 @@
 <!-- =====================================================================================
   PRACTICE EXAM QUESTIONS TEMPLATE                   copy to: <guide>/exam/exam.questions.html
-  Same markup as a unit questions file (see questions.html), plus data-from="<unit-id>".
-  ids: "exam_q1", "exam_q2", ... in order. Match the real exam's mix of types and difficulty.
+  Same markup as a unit questions file (see questions.html, including written items), plus:
+    data-from     "<unit-id>": the unit the question tests ("From Lecture 2" and the score breakdown).
+                  Not used in an exam-only guide, which has no units.
+    data-topic    optional short topic name, 2 to 5 words ("Half-life", "Carbon dating"). The score
+                  breakdown groups by data-from when present, otherwise by data-topic, weakest first.
+                  Required in practice for an exam-only guide; harmless next to data-from.
+    data-points   optional points the question is worth on the real exam (default 1). The score is in
+                  points when any question has it: copy the real exam's values. Written items earn
+                  their points x 1 (full marks), x 0.5 (partly) or x 0 (missed it).
+  ids: "exam_q1", "exam_q2", ... in order. Match the real exam's mix of types, points and difficulty.
   If the user will take a supplied practice exam themselves, do not copy its questions here:
-  write new questions in the same style. EVERYTHING BELOW IS A MADE-UP EXAMPLE.
+  write new questions in the same style. EVERYTHING BELOW IS A MADE-UP EXAMPLE (exam_q7 is a
+  written code question: data-type="written" data-format="code"; its model answer and rubric are in
+  exam.solutions.html).
   ===================================================================================== -->
-<div class="check" data-sg="question" data-id="exam_q1" data-type="mc" data-ans="b" data-from="ex1">
+<div class="check" data-sg="question" data-id="exam_q1" data-type="mc" data-ans="b" data-from="ex1" data-topic="Half-life" data-points="2">
   <p class="qt" data-sg="question-stem">A sample's activity falls from 800 to 100 decays per second in 36 hours. What is its half-life?</p>
   <ol class="opts" data-sg="options">
     <li data-sg="option" data-k="a">8 hours</li>
@@ -15,19 +25,19 @@
   </ol>
   <div class="expl" data-sg="explanation"><p>800 to 100 is a factor of 8, three halvings, so \(t_{1/2}=36/3=12\) hours.</p></div>
 </div>
-<div class="check" data-sg="question" data-id="exam_q2" data-type="tf" data-ans="T" data-from="ex1">
+<div class="check" data-sg="question" data-id="exam_q2" data-type="tf" data-ans="T" data-from="ex1" data-topic="Activity">
   <p class="qt" data-sg="question-stem">For any radioactive isotope, the activity of a sample halves over one half-life.</p>
   <div class="expl" data-sg="explanation"><p>True: \(A=\lambda N\) and \(N\) halves.</p></div>
 </div>
-<div class="check" data-sg="question" data-id="exam_q3" data-type="num" data-ans="0.125" data-tol="0.001" data-from="ex1">
+<div class="check" data-sg="question" data-id="exam_q3" data-type="num" data-ans="0.125" data-tol="0.001" data-from="ex1" data-topic="Half-life">
   <p class="qt" data-sg="question-stem">An isotope has a half-life of 5 days. What fraction of a sample remains after 15 days?</p>
   <div class="expl" data-sg="explanation"><p>Three half-lives: \((1/2)^3=1/8=0.125\).</p></div>
 </div>
-<div class="check" data-sg="question" data-id="exam_q4" data-type="num" data-ans="11460" data-tol="1" data-suffix="years" data-from="ex2">
+<div class="check" data-sg="question" data-id="exam_q4" data-type="num" data-ans="11460" data-tol="1" data-suffix="years" data-from="ex2" data-topic="Carbon dating">
   <p class="qt" data-sg="question-stem">Carbon-14 has a half-life of 5730 years. A wooden tool contains one quarter of the carbon-14 found in living wood. How old is it?</p>
   <div class="expl" data-sg="explanation"><p>One quarter is two half-lives: \(2\times5730=11460\) years.</p></div>
 </div>
-<div class="check" data-sg="question" data-id="exam_q5" data-type="multi" data-ans="a,c" data-from="ex2">
+<div class="check" data-sg="question" data-id="exam_q5" data-type="multi" data-ans="a,c" data-from="ex2" data-topic="Carbon dating">
   <p class="qt" data-sg="question-stem">Radiocarbon dating assumes a sample's carbon-14 started at the level found in living tissue. Select every statement that is true.</p>
   <ol class="opts" data-sg="options">
     <li data-sg="option" data-k="a">The clock starts when the organism stops taking in carbon.</li>
@@ -36,7 +46,14 @@
   </ol>
   <div class="expl" data-sg="explanation"><p>(a) and (c) are the assumptions and the formula; (b) is impossible under the assumption, since \(N\le N_0\).</p></div>
 </div>
-<div class="check" data-sg="question" data-id="exam_q6" data-type="num" data-ans="0.69315" data-tol="0.002" data-from="ex1">
+<div class="check" data-sg="question" data-id="exam_q6" data-type="num" data-ans="0.69315" data-tol="0.002" data-from="ex1" data-topic="Decay constant">
   <p class="qt" data-sg="question-stem">An isotope has decay constant \(\lambda=1\) per day. What is its half-life in days? An exact answer is fine.</p>
   <div class="expl" data-sg="explanation"><p>\(t_{1/2}=\ln2/\lambda=\ln 2\approx0.693\) days.</p></div>
+</div>
+<div class="check" data-sg="question" data-id="exam_q7" data-type="written" data-format="code" data-lines="6" data-from="ex1" data-topic="Decay in code" data-points="3">
+  <div class="qt" data-sg="question-stem">
+    <p>Complete this Python function so that it returns the fraction of a radioactive sample still undecayed after time <code>t</code>, for an isotope with half-life <code>half_life</code> (both in the same units). What does <code>fraction_left(20, 8)</code> return, to three decimal places?</p>
+    <pre class="code" data-sg="code-block"><code>def fraction_left(t, half_life):
+    ...</code></pre>
+  </div>
 </div>

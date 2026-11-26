@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220" width="360" height="220" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <rect x="0" y="0" width="360" height="220" fill="#ffffff"/>
+  <line x1="50" y1="180" x2="330" y2="180" stroke="#384050" stroke-width="1.5"/>
+  <line x1="50" y1="20" x2="50" y2="180" stroke="#384050" stroke-width="1.5"/>
+  <g fill="#5f6a7e" text-anchor="end">
+    <text x="44" y="184">0</text><text x="44" y="124">0.2</text><text x="44" y="64">0.4</text>
+  </g>
+  <g stroke="#dce1ea"><line x1="50" y1="120" x2="330" y2="120"/><line x1="50" y1="60" x2="330" y2="60"/></g>
+  <g fill="#2747c7">
+    <rect x="80" y="120" width="50" height="60"/>
+    <rect x="165" y="30" width="50" height="150"/>
+    <rect x="250" y="90" width="50" height="90"/>
+  </g>
+  <g fill="#131722" text-anchor="middle">
+    <text x="105" y="200">0</text><text x="190" y="200">1</text><text x="275" y="200">2</text>
+    <text x="105" y="114">0.2</text><text x="190" y="24">0.5</text><text x="275" y="84">0.3</text>
+    <text x="190" y="216" fill="#5f6a7e">k</text>
+  </g>
+  <text x="14" y="104" fill="#5f6a7e" transform="rotate(-90 14 104)" text-anchor="middle">P(X = k)</text>
+</svg>

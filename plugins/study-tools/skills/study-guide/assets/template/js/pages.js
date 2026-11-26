@@ -4,7 +4,8 @@
    visible at a time; links to any id inside a page open that page and scroll to the target.
    Math is typeset lazily, the open page first, through window.sgPump (see mathjax-config.js).
    Gotcha: scrollTo(0,0) runs only when the page actually changes, otherwise a contents link to a
-   section on the same page would jump to the top first and land in the wrong place. */
+   section on the same page would jump to the top first and land in the wrong place.
+   An exam-only guide (no unit pages, only the practice exam) opens on the exam instead of the start page. */
 (function () {
   'use strict';
   var CFG = (window.SG && window.SG.config) || {};
@@ -39,9 +40,10 @@
     cards.innerHTML = pages.filter(function (p) { return p.dataset.sg === 'unit' || p.dataset.sg === 'exam'; }).map(function (p) {
       var c = p.querySelectorAll('.check').length;
       if (p.dataset.sg === 'exam') {
-        var mins = CFG.practice_minutes;
+        var mins = CFG.practice_minutes, pts = 0, anyPts = false;
+        Array.prototype.forEach.call(p.querySelectorAll('.check'), function (q) { var v = parseFloat(q.dataset.points); if (v > 0) anyPts = true; pts += v > 0 ? v : 1; });
         return '<a class="unit-card exam-card" href="#' + p.id + '"><span class="k">Practice exam</span><span class="t">' + esc(p.dataset.title || 'Practice exam') + '</span>' +
-          '<span class="m"><span>' + c + ' questions' + (mins ? ' \u00b7 ' + mins + ' min' : '') + '</span><span class="st" data-for="' + p.id + '"></span></span></a>';
+          '<span class="m"><span>' + c + ' questions' + (anyPts ? ' \u00b7 ' + (Math.round(pts * 100) / 100) + ' points' : '') + (mins ? ' \u00b7 ' + mins + ' min' : '') + '</span><span class="st" data-for="' + p.id + '"></span></span></a>';
       }
       var n = p.querySelectorAll('[data-sg="section"][id]').length;
       return '<a class="unit-card" href="#' + p.id + '"><span class="k">' + esc(uname(p)) + '</span><span class="t">' + esc(p.dataset.title) + '</span>' +
@@ -134,5 +136,8 @@
 
   var start = '';
   try { start = decodeURIComponent((location.hash || '').slice(1)); } catch (e) { }
-  if (!(start && go(start, true))) go(nav.page && document.getElementById(nav.page) ? nav.page : 'intro', true);
+  /* an exam-only guide (no unit pages) opens straight on the practice exam */
+  var examOnly = !pages.some(function (p) { return p.dataset.sg === 'unit'; }) && pages.filter(function (p) { return p.dataset.sg === 'exam'; })[0];
+  var home = examOnly ? examOnly.id : 'intro';
+  if (!(start && go(start, true))) go(nav.page && document.getElementById(nav.page) ? nav.page : home, true);
 })();

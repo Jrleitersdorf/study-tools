@@ -18,6 +18,16 @@
     solution-why      <p class="sol-why" data-sg="solution-why">: optional, ONE sentence: the transferable pattern or the trap.
   Each solution should take under a minute to read.
 
+  WRITTEN ITEMS (data-type="written") get a model answer and a rubric instead of steps; the heading,
+  steps and answer line are optional (the engine adds a "Model answer" heading when there is none).
+    model-answer      <div class="model" data-sg="model-answer">: the answer a top student would write
+                      on the exam, at the real length and in the real form (paragraphs, a derivation,
+                      code in <pre class="code" data-sg="code-block"><code>...</code></pre>).
+    rubric            <ul class="rubric" data-sg="rubric">: 2 to 5 <li data-marks="1"> points, each one
+                      thing a grader looks for (the claim, the key idea, the evidence, a correct value).
+                      data-marks is what the point is worth; the marks should add up to the question's
+                      data-points. The reader marks their own answer against it.
+
   EVERYTHING BELOW IS A MADE-UP EXAMPLE (unit "ex1"): replace it.
   ===================================================================================== -->
 
@@ -62,3 +72,14 @@
   <p class="sol-a" data-sg="solution-answer"><b>Answer:</b> \(e^{-1}\approx0.368\)</p>
   <p class="sol-why" data-sg="solution-why">When \(\lambda t\) comes out to a whole number, leave the answer as a power of \(e\).</p>
 </div>
+
+<!-- EXAMPLE written solution (for the commented-out ex1_q6 in questions.html) -->
+<!--
+<div class="sol" data-sg="solution" data-for="ex1_q6">
+  <div class="model" data-sg="model-answer"><p>The activity is the decay constant times the number of nuclei left, and the decay constant does not change, so the activity is always proportional to that number. When the number of nuclei halves, the activity halves too.</p></div>
+  <ul class="rubric" data-sg="rubric">
+    <li data-marks="1">States that the activity equals the decay constant times the number of nuclei.</li>
+    <li data-marks="1">Says the decay constant is fixed, so the activity is proportional to the nuclei left and halves when they halve.</li>
+  </ul>
+</div>
+-->

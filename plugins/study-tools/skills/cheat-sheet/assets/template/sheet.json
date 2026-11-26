@@ -1,0 +1,17 @@
+{
+  "title": "COURSE EXAM Cheat Sheet",
+  "course": "COURSE CODE, Full course name · Exam name, day and date, time",
+  "scope": "One line: the lectures, chapters or weeks the exam covers, and their topics",
+  "header": "COURSE exam cheat sheet",
+  "intro": "One or two sentences: what this sheet is (the short version: what is most likely to be asked), how boxes work, and how topics point to the student's printed material.",
+  "paper": "letter",
+  "layout": "standard",
+  "dense_columns": 3,
+  "landscape": false,
+  "kind": "cheat sheet",
+  "page_budget": 30,
+  "style": {"no_em_dashes": true},
+  "sections": [
+    {"id": "s1", "num": "1", "title": "Section title: a major concept", "tab": "Short tab", "summary": "One grey line: what the section covers"}
+  ]
+}

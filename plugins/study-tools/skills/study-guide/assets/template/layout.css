@@ -89,6 +89,11 @@ th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);verti
 th{font-family:var(--mono);font-weight:500;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
 tr:last-child td{border-bottom:0}
 td.num{font-family:var(--mono)}
+/* code block: monospace, scrolls sideways inside the block only */
+pre.code{margin:0;min-width:0;max-width:100%;overflow-x:auto;font-family:var(--mono);font-size:.84rem;line-height:1.5;color:var(--ink);background:var(--formula);border:1px solid var(--line);border-radius:10px;padding:10px 14px;white-space:pre;tab-size:4;-moz-tab-size:4}
+pre.code code{font-family:inherit;font-size:inherit;background:none;padding:0;white-space:inherit}
+.sect pre.code,.subsec pre.code{max-width:min(100%,86ch)}
+.walkbox pre.code,.fbkbox pre.code,.qc-text pre.code{font-size:.8rem;padding:8px 12px}
 mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;margin:.3em 0!important;padding:2px 0}
 mjx-container:not([display="true"]) svg{max-width:100%}
 mjx-assistive-mml{max-width:100%!important}
@@ -213,6 +218,7 @@ details.questions>summary{font-family:var(--serif);font-size:1.15rem}
 .exam-submit .actions .src{margin-left:4px}
 .ex-result{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:11px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .ex-score{font-family:var(--serif);font-weight:600;font-size:1.3rem;color:var(--ink)}
+.ex-result td.num{white-space:nowrap}
 .fb .from{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
 .unit-card.exam-card{border-color:var(--accent-line)}
 @media (max-width:560px){.exam-page{padding:20px 16px;border-radius:12px}.exam-bar{position:static}}
@@ -291,7 +297,8 @@ details.questions>summary{font-family:var(--serif);font-size:1.15rem}
   .unit{break-before:page}
   .sect{break-inside:auto}
   .sect>h3,.sect h4{break-after:avoid}
-  .eq,.takeaway,.tbl,.pit,.fig,.wex{break-inside:avoid}
+  .eq,.takeaway,.tbl,.pit,.fig,.wex,pre.code{break-inside:avoid}
   .fig{max-width:420px}
   mjx-container[display="true"]{overflow:visible}
+  pre.code{white-space:pre-wrap;overflow-wrap:anywhere;overflow:visible;max-width:none;background:#f6f7f9;border-color:#d0d5de;color:#111;font-size:.82rem}
 }

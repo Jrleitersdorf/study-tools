@@ -2,6 +2,7 @@
   "_about": "The agreed structure of the guide (phase 4). Copy to <guide>/outline.json. Order of units = order of pages. validate.py outline checks it. Made-up example values.",
   "sources_dir": "../uploads",
   "_sources_dir": "The folder holding the user's uploads, absolute or relative to the guide folder. validate.py and build.py re-check the source map against it.",
+  "_exam_only": "Optional. Set \"exam_only\": true with \"units\": [] for a guide that is only a practice exam (no unit pages; questions use data-topic instead of data-from). See template-reference.md section 9.",
   "units": [
     {
       "id": "ex1",
@@ -86,5 +87,5 @@
       "note": "logistics only, no exam content"
     }
   ],
-  "_sources": "EVERY uploaded file appears here once. kind: slides | transcript | notes | reading | homework | practice-exam | review-sheet | hints | other. A source with no units must say why in use: exam-intel (shapes questions and tags) or excluded (with a note)."
+  "_sources": "EVERY uploaded file appears here once. kind: slides | transcript | notes | reading | homework | practice-exam | review-sheet | hints | other. A source with no units must say why in use: exam (the practice exam is written from it, e.g. in an exam-only guide), exam-intel (shapes questions and tags) or excluded (with a note)."
 }

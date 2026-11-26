@@ -10,6 +10,8 @@ Paths below are relative to the skill folder (`${CLAUDE_SKILL_DIR}`); `<guide>` 
 python3 scripts/build.py <guide>
 ```
 
+An exam-only guide (`"exam_only": true` and `"units": []` in `outline.json`, see `template-reference.md` section 9) builds the same way; the page holds the start page, the exam and the summary, and opens on the exam.
+
 It validates first (re-checking the source map against `sources_dir` from `outline.json`) and stops on any error (fix them; `--force` builds anyway for a quick look). For the early draft with only the first unit written, use `python3 scripts/build.py <guide> --only <unit-id>`: it builds just that unit and accepts links to units not written yet. It writes `<guide>/study_guide.html` and lists the image files that must be published next to it. Pillow adds image dimensions; install it if build says it is missing.
 
 ## 2. Test in a browser
@@ -19,11 +21,20 @@ bash scripts/fetch_libs.sh                      # once; prints the library folde
 node scripts/test_guide.js <guide>/study_guide.html --libs <that folder>
 ```
 
-The suite serves MathJax and MathLive from the local copies (the sandbox usually cannot reach the CDNs), mocks Claude for Ask and Solve it for me, and checks: no script errors; math typeset with no errors or raw TeX; contents and cards; wrong answers do not reveal the key; Show answer reveals key and worked solution; exact math answers; progress survives a reload; Solve it for me; Ask; the practice exam flow; Light and Dark; no sideways scrolling of the page at phone width; graceful behavior without Claude. Fix every FAIL.
+The suite serves MathJax and MathLive from the local copies (the sandbox usually cannot reach the CDNs), mocks Claude for Ask, Solve it for me and Get feedback (and, in one pass, Claude storage), and checks: no script errors; math typeset with no errors or raw TeX; contents and cards; wrong answers do not reveal the key; Show answer reveals key and worked solution; exact math answers; progress survives a reload; Solve it for me and that its prompt fits the question type; Ask; written items (compare, self-mark, feedback, Try again, reload); the practice exam flow (drafts, points, written answers marked after Submit, the weakest-first breakdown); Light and Dark; no sideways scrolling of the page at phone width, with code blocks scrolling inside themselves; saving to Claude storage; graceful behavior without Claude. An exam-only guide runs the same suite without the unit checks. Fix every FAIL.
 
 At phone width (390 px) it also prints a WARN line for every display equation or table that overflows its own box (the reader would have to scroll it sideways). These do not fail the run; fix them when the fix is cheap (split the equation with `aligned`, take the table to 2 columns), since some readers study on a phone.
 
 Then look at the screenshots it saves (`test-shots/` next to the page): desktop light and dark, the exam after submitting, Ask, and a phone page. Also open two or three unit pages yourself at desktop and phone width and look at every figure and equation card. If Playwright is not available, say so in the final message and rely on validate.py.
+
+The skill's own examples double as the engine's regression test. From the skill folder, with a writable scratch folder `<tmp>`:
+
+```
+python3 scripts/build.py assets/example --allow-example --out <tmp>/example/study_guide.html
+python3 scripts/build.py assets/example-exam-only --allow-example --out <tmp>/exam-only/study_guide.html
+node scripts/test_guide.js <tmp>/example/study_guide.html --libs <library folder>
+node scripts/test_guide.js <tmp>/exam-only/study_guide.html --libs <library folder>
+```
 
 ## 3. Publish as an artifact (when the Artifact tool exists)
 
@@ -32,12 +43,12 @@ The template already meets the artifact page contract (title, light and dark tok
 Publish with:
 - `file_path`: `<guide>/study_guide.html`
 - `files`: one entry per image, `{"img/<name>.png": "<guide>/img/<name>.png", ...}` (the list build.py printed)
-- `capabilities`: `{"sample": {}, "db": {}}`. `sample` powers Ask and Solve it for me; `db` saves progress, questions and walkthroughs across the reader's devices.
+- `capabilities`: `{"sample": {}, "db": {}}`. `sample` powers Ask, Solve it for me and Get feedback; `db` saves progress (including self-marks), questions, walkthroughs and feedback across the reader's devices.
 - `icon`: `book`; a one-sentence `description` naming the course and exam.
 
 To update later, edit the content files, rebuild, and publish the same file path again (same conversation) or pass the artifact's `url` (later conversation). Keep question ids stable: saved progress is keyed by them.
 
-Without the Artifact tool, deliver the offline copy (step 5) as the main file. Ask and Solve it for me hide themselves there, and progress saves in the reader's browser.
+Without the Artifact tool, deliver the offline copy (step 5) as the main file. Ask, Solve it for me and Get feedback hide themselves there, and progress saves in the reader's browser.
 
 ## 4. PDF
 
@@ -45,7 +56,7 @@ Without the Artifact tool, deliver the offline copy (step 5) as the main file. A
 node scripts/make_pdf.js <guide>/study_guide.html <out>/<Guide Title>.pdf --libs <library folder>
 ```
 
-The print stylesheet replaces the interactive start page with a compact cover (title, scope and the contents of every unit), keeps the reading text and figures (each capped at about a third of a page), and drops the interactive parts (questions, Ask, the exam, buttons). Look at the first three pages (`pdftoppm -r 50 -png -f 1 -l 3`) before sending.
+The print stylesheet replaces the interactive start page with a compact cover (title, scope and the contents of every unit), keeps the reading text, figures (each capped at about a third of a page) and code blocks (wrapped), and drops the interactive parts (questions, Ask, the exam, buttons). An exam-only guide has no reading text, so skip its PDF. Look at the first three pages (`pdftoppm -r 50 -png -f 1 -l 3`) before sending.
 
 ## 5. Offline copy
 

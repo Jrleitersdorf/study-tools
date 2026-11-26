@@ -1,0 +1,17 @@
+% Section 4: Across topics. Written last, from the other sections; each row points back to where the idea is taught.
+
+\cstopic{4.1}{Same law, three settings}{1.1, 1.2, 3.1}
+\takeaway{This topic lines up the three places the course uses the decay law: counting nuclei, measuring activity and simulating decay. Questions that mix units usually hinge on noticing that all three halve at the same rate.}
+
+\begin{tablebox}{Nuclei, activity, simulation}{@{}>{\raggedright\arraybackslash}p{0.2\linewidth}>{\raggedright\arraybackslash}p{0.27\linewidth}>{\raggedright\arraybackslash}p{0.23\linewidth}X@{}}
+\toprule & \textbf{Quantity} & \textbf{Law} & \textbf{Halves every}\\\midrule
+Nuclei (1.1) & \(N(t)\) & \(N_0 e^{-\lambda t}\) & \(t_{1/2}=\frac{\ln 2}{\lambda}\)\\
+Activity (1.2) & \(A(t)=\lambda N\) & \(A_0 e^{-\lambda t}\) & the same \(t_{1/2}\)\\
+Simulation (3.1) & expected \(N_k\) & \(N_0(1-p)^k\) & about \(\frac{\ln 2}{p}\) steps\\
+\bottomrule
+\end{tablebox}
+
+\begin{tfbox}
+\tf{T}{If a detector's count rate halves in 3 hours, the number of nuclei also halves in 3 hours.}{\(A=\lambda N\).}
+\tf{F}{A larger sample takes longer to lose half its nuclei.}{The half-life does not depend on \(N_0\).}
+\end{tfbox}
